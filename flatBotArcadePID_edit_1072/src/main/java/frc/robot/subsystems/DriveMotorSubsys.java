@@ -28,7 +28,7 @@ public class DriveMotorSubsys extends SubsystemBase {
   public final WPI_TalonSRX _masterTalonR = new WPI_TalonSRX(2);
   public final WPI_TalonSRX _slaveTalonR = new WPI_TalonSRX(1);
 
-  public int _position_slot = 0; //used by PID
+  public int _position_slot = 0; //used by PID init in GoToPos cmd
 
 //CONSTRUCTOR
   public DriveMotorSubsys() {

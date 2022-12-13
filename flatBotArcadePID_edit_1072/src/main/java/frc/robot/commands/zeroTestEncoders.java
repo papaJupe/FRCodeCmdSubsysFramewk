@@ -10,7 +10,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 
-
+// called from OI on joy button 4 press, inits then empty 
+// execute so no periodic callback?
 public class zeroTestEncoders extends CommandBase {
   public zeroTestEncoders() {
     // Use requires() here to declare subsystem dependencies

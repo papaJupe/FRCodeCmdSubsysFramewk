@@ -1,11 +1,11 @@
 
 // edited from Asid1072 video 4 -- Cmd/Subsy framewk, PID for position
-// all periodic in Robot.j, oper input in OI, Const
-// asid,like 1072-22, eliminated RC; purpose here -- demo this
+// all periodic in Robot.j, oper input in OI, Const for flatbot, gamepd
+// asid,like 1072-22, eliminated RC; purpose here -- demo w/ flatbot
 // framewk for arcade drive, choose auto w/ PID, display data to dashbd
 
 // todo: use Phoe Tune to set kP etc, then put into code, check joystick
-// for axis 1 = throttle, 0 = turn, else change constant
+// for axis 1 = throttle, 0 = turn, button addr, encod direction
 
 package frc.robot;
 
@@ -110,7 +110,8 @@ public class Robot extends TimedRobot {
   }
 
   // autonomousPeriodic is called (~20ms) during autonomous.
-  // ?? all __Periodics expect call to CS() in them
+  // ?? if all __Periodics need call to CS() in them or if
+  // this is redundant
   @Override
   public void autonomousPeriodic() {
     CommandScheduler.getInstance().run();
