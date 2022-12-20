@@ -51,7 +51,7 @@ public class Robot extends TimedRobot {
     _oi = new OI();
 
     // could set constants here
-
+    // needs to zero encoder
     // default commands are commands that are always running on the robot
     // seems like every subsys needing a Periodic should get one;
     // done here vs. RC, also others in RC constructor shift here
@@ -126,6 +126,7 @@ public class Robot extends TimedRobot {
   // teleopPeriodic is called every (~20ms) during operator control
   @Override
   public void teleopPeriodic() {
+    // is this is redundant
     CommandScheduler.getInstance().run();
   }
 

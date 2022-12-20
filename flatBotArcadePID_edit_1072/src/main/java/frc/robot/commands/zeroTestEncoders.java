@@ -1,8 +1,5 @@
 /*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
+/*      zeroTestEncoders cmd                                                          */
 /*----------------------------------------------------------------------------*/
 
 package frc.robot.commands;
@@ -12,14 +9,15 @@ import frc.robot.*;
 
 // called from OI on joy button 4 press, inits then empty 
 // execute so no periodic callback?
+//CONSTRUCTOR
 public class zeroTestEncoders extends CommandBase {
   public zeroTestEncoders() {
-    // Use requires() here to declare subsystem dependencies
-    // eg. requires(chassis);
+    // Use requires(sic) here to declare subsystem dependency
+    // e.g. requires(chassis);
     addRequirements(Robot._motorSubsys);
   }
 
-  // Called just before this Command runs the first time
+  // subsys method called just before this Command runs first time
   @Override
   public void initialize() {
     System.out.println("zeroing encoders");
@@ -44,7 +42,7 @@ public class zeroTestEncoders extends CommandBase {
   }
 
   // Called when another command which requires one or more of the same
-  // subsystems is scheduled to run
+  // subsystems is scheduled to run, now not allowed, why?
   // @Override
   // public void interrupted() {
   // }
