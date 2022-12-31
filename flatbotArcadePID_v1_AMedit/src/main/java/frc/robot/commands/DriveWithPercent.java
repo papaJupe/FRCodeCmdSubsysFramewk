@@ -1,15 +1,17 @@
-// flatBotArcadePID edited from asid1072 cmd/subsys framewk   command/DriveWithPercent
+// flatBotArcadePID_edited | cmd/subsys framewk | commands/DriveWithPercent
 
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 
-//CONSTRUCTOR, called in Robot.j .setDefaultCommand(_motorSubsys, new DriveWithPercent())
+//CONSTRUCTOR
+// called in [subsyst].setDefaultCommand(_motorSubsys, new DriveWithPercent())
+// maybe thereafter automatically by teleopPeriodic ?
 public class DriveWithPercent extends CommandBase {
   public DriveWithPercent() {
     addRequirements(Robot._motorSubsys);
-  }
+  } // end constructor
 
   // Called just before this Command runs the first time
   @Override
@@ -21,10 +23,10 @@ public class DriveWithPercent extends CommandBase {
   public void execute() {
     double throttle = OI.deadzone(Robot._oi.getLeftY());
     double turn = OI.deadzone(Robot._oi.getLeftX());
-    Robot._motorSubsys.arcadeDrive(throttle, turn);
+    Robot._motorSubsys.arcaDriv(throttle, turn);
   }
 
-  // Make this return true when this Command no longer needs to run execute()
+  // Make this return true when this Command no longer needs to execute()
   @Override
   public boolean isFinished() {
     return false;
@@ -33,7 +35,8 @@ public class DriveWithPercent extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean endme) {
-    if (endme) Robot._motorSubsys.arcadeDrive(0, 0);
+    if (endme)
+      Robot._motorSubsys.arcaDriv(0, 0);
   }
 
 }

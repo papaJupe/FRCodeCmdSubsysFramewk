@@ -1,11 +1,12 @@
-// flatBotArcadePID edited from asid1072 cmd/subsys framewk   GoToPosition cmd
+// flatBotArcadePID_edited | cmd/subsys framewk |  GoToPosition cmd
 
 package frc.robot.commands;
 
 //import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
-import frc.robot.*;
+import frc.robot.Robot;
+import static frc.robot.Robot.kDriveInch2Tick;
+import frc.robot.*; // things like OI, Constant class
 
 // import com.ctre.phoenix.motorcontrol.ControlMode;
 // import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -13,33 +14,37 @@ import frc.robot.*;
 // import com.ctre.phoenix.motorcontrol.can.*;
 
 public class GoToPosition extends CommandBase {
-  // inches to drive straight
+  //  value received/sent = inches to drive straight
   int _target;
 
-  // CONSTRUCTOR for cmd, called by button A press from OI
+  // CONSTRUCTOR for cmd, called from OI by button _N_ press,
+  // also by auto cmds. recd param in.
   public GoToPosition(int target) {
-    _target = target;
+    _target = (int)(target * kDriveInch2Tick); // could overload also 
+    // to recv [subsys] param or drive speed
     addRequirements(Robot._motorSubsys);
   }
 
-  // Called just before this Cmd runs first time (each button A press?);
-  // data slot 0-3, pid 0-1
-  @Override // need to zero encoder here ??
+  // Called just before this Cmd runs first time (each button press?);
+  // data slot 0-3, pid loop 0-1
+  @Override // need to zero encoder here ?; slot likely already set
   public void initialize() {
-    Robot._motorSubsys._masterTalonL.selectProfileSlot(Robot._motorSubsys._position_slot, 0);
-    Robot._motorSubsys.zeroEncoder(0);
-    Robot._motorSubsys._masterTalonR.selectProfileSlot(Robot._motorSubsys._position_slot, 0);
+    // Robot._motorSubsys.leftMaster.selectProfileSlot(Robot._motorSubsys
+     //  ._position_slot, 0);
+    // Robot._motorSubsys.rightMaster.selectProfileSlot(Robot._motorSubsys
+    //._position_slot, 0);
     Robot._motorSubsys.zeroEncoder(0);
   }
 
-  // subsyst method called repeatedly when this Cmnd is scheduled
+  // subsyst method called repeatedly when this Cmd is scheduled
   @Override
   public void execute() {
     Robot._motorSubsys.setPosition(_target);
   }
 
-  // ... returns true when this Command no longer needs to run execute()
-  // here, when any joystick movement detected
+  // ... returns true when this Command no longer needs to run execute();
+  // here, when any joystick movement detected, might prefer to poll only
+  // one axis to avoid accidental finish
   @Override
   public boolean isFinished() {
     if (Robot._oi.getLeftY() > OI.deadzone || Robot._oi.getLeftX() > OI.deadzone)

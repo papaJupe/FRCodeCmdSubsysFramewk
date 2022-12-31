@@ -30,7 +30,7 @@ public class OI {
 
   public OI() {  // in inches
     buttonA.whenPressed(new GoToPosition(24));
-    buttonY.whenPressed(new zeroTestEncoders());
+    buttonY.whenPressed(new zeroDrivEncoder());
   }
 
   public static double deadzone(double input) { // applies deadzone to a joystick, input from -1 ro 1
