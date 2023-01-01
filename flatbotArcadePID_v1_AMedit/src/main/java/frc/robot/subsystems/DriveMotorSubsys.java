@@ -33,10 +33,10 @@ public class DriveMotorSubsys extends SubsystemBase {
 
   public int _position_slot = 0; // used by PID init in GoToPos cmd
 
-  // needed to instance motor as wpi_talonsrx to work for DD param
+  // needed to instance motor as wpi_talonSRX to work for DD param
   DifferentialDrive _diffDrive = new DifferentialDrive(leftMaster, rightMaster);
 
-  // set here after tuning in PT; could shift to Constant later
+  // set here after tuning in PT; could shift to Constant when finalized
   static final double kP_pos = 0.3;
   static final double kI_pos = 0.00015;
   static final double kD_pos = 50.0;
@@ -104,13 +104,13 @@ public class DriveMotorSubsys extends SubsystemBase {
     // Config the peak and nominal (min) outputs, 12V = 1.0
     leftMaster.configNominalOutputForward(0, Constant.TIMEOUT);
     leftMaster.configNominalOutputReverse(0, Constant.TIMEOUT);
-    leftMaster.configPeakOutputForward(1, Constant.TIMEOUT);
-    leftMaster.configPeakOutputReverse(-1, Constant.TIMEOUT);
+    leftMaster.configPeakOutputForward(0.3, Constant.TIMEOUT);
+    leftMaster.configPeakOutputReverse(-0.3, Constant.TIMEOUT);
 
     rightMaster.configNominalOutputForward(0, Constant.TIMEOUT);
     rightMaster.configNominalOutputReverse(0, Constant.TIMEOUT);
-    rightMaster.configPeakOutputForward(1, Constant.TIMEOUT);
-    rightMaster.configPeakOutputReverse(-1, Constant.TIMEOUT);
+    rightMaster.configPeakOutputForward(0.3, Constant.TIMEOUT);
+    rightMaster.configPeakOutputReverse(-0.3, Constant.TIMEOUT);
 
     /**
      * Config the allowable closed-loop error, Closed-Loop output will be

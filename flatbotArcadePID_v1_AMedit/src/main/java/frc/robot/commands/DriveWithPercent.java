@@ -23,7 +23,7 @@ public class DriveWithPercent extends CommandBase {
   public void execute() {
     double throttle = OI.deadzone(Robot._oi.getLeftY());
     double turn = OI.deadzone(Robot._oi.getLeftX());
-    Robot._motorSubsys.arcaDriv(throttle, turn);
+    Robot._motorSubsys.arcaDriv(throttle * 0.7, turn * 0.5);
   }
 
   // Make this return true when this Command no longer needs to execute()

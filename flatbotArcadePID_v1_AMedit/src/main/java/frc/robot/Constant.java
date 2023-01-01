@@ -7,7 +7,8 @@ package frc.robot;
  * and timeout. Few used now, but maybe later
  */
 public class Constant {
-  // most not used, but might be in future
+   public static final int autoDriveInch = 48;
+   
   public static final int TIMEOUT = 20; // timeout for all CAN command in ms
 
   // CAN IDs
@@ -16,11 +17,11 @@ public class Constant {
   public static final int _masterDriveR = 1; // CAN ID of master talonL
   public static final int _slaveDriveR = 2; // CAN ID of slave talonL
 
-  // Joystick
-  public static final int throttle = 1; // Y axis of left stick
-  public static final int turn = 0; // X axis of left stick
-  public static final int invertLeftY = -1; // whether or not to invert the Y axis stick
-  public static final int invertLeftX = 1; // whether or not to invert the X axis stick
+  // // Joystick
+  // public static final int throttle = 1; // Y axis of left stick
+  // public static final int turn = 0; // X axis of left stick
+  // public static final int invertLeftY = -1; // whether or not to invert the Y axis stick
+  // public static final int invertLeftX = 1; // whether or not to invert the X axis stick
 
   // Controller settings
   public static final boolean invertMasterL = true; // invert the output

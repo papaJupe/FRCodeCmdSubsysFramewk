@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
+import static frc.robot.Constant.*;
 
 /**
  * This class is instanced by Main.j & automatically run
@@ -45,8 +46,8 @@ public class Robot extends TimedRobot {
   // PID param now in drive subsys class var. to keep Robot.j uncluttered
   // static final double kP = 0.3 ....
 
-  // param for auto drive to position (in.), set here for testing
-  int targetDriveInch = 54;
+  // param for auto drive to position (in.), import from Constant.j
+  int targetDriveInch = autoDriveInch;
   // unit conversion for flatbot, 1 wheel rot, 18.7in = 10700 tick
   // 4.5 ft = 54in = ~32000
   public static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
@@ -85,12 +86,12 @@ public class Robot extends TimedRobot {
 
     _autonChooser = new SendableChooser<>();
     _autonChooser.setDefaultOption("simpleAuto", _simpleAuto);
-    _autonChooser.addOption("go Farther", _simplePlus);
+    _autonChooser.addOption("goFarther", _simplePlus);
     // _autonChooser.addOption("Two Ball Auton", Autons.TWO_BALL_AUTO);
     // _autonChooser.addOption("One Ball Auton", Autons.ONE_BALL_AUTO);
 
-    // if not sent to SD's chooser field, does it appear in DS field?
-    SmartDashboard.putData("Auton Selector", _autonChooser);
+    // if SD not enabled, does this appear in LV-dash's chooser field?
+     SmartDashboard.putData("Auton Selector", _autonChooser);
     // sending data to chooser may require
     NetworkTableInstance.getDefault().setUpdateRate(0.02);
 
@@ -119,7 +120,6 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // chooser instanced above in roboInit
-    // consider
     if (_autonChooser.getSelected() != null) {
       _autonChooser.getSelected().schedule();
     }
@@ -127,10 +127,10 @@ public class Robot extends TimedRobot {
     // for test just go to position(inch)
     // final Command _simpleAuto = new GoToPosition(targetDriveInch);
     // _simpleAuto.schedule();
-  }
+  }  // end autoInitß
 
   // autonomousPeriodic is called (~50 hz) during autonomous.
-  // ?? if Periodics need call to CS() in them or if
+  // ?? if Periodics need explicit call to CS() in them or if
   // this is redundant
   @Override
   public void autonomousPeriodic() {
