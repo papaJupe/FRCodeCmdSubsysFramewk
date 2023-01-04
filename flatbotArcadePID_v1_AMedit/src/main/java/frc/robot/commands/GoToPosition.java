@@ -4,8 +4,8 @@ package frc.robot.commands;
 
 //import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+
 import frc.robot.Robot;
-import static frc.robot.Robot.kDriveInch2Tick;
 import frc.robot.*; // things like OI, Constant class
 
 // import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -20,8 +20,7 @@ public class GoToPosition extends CommandBase {
   // CONSTRUCTOR for cmd, called from OI by button _N_ press,
   // also by auto cmds. recd param in.
   public GoToPosition(int target) {
-    _target = (int)(target * kDriveInch2Tick); // could overload also 
-    // to recv [subsys] param or drive speed
+    _target = target; // could overload to recv [subsys] or drive speed
     addRequirements(Robot._motorSubsys);
   }
 
@@ -37,6 +36,7 @@ public class GoToPosition extends CommandBase {
   }
 
   // subsyst method called repeatedly when this Cmd is scheduled
+  // inch value sent to subsys
   @Override
   public void execute() {
     Robot._motorSubsys.setPosition(_target);

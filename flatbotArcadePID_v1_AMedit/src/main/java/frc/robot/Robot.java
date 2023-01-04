@@ -17,7 +17,7 @@ package frc.robot;
 // import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.networktables.NetworkTableInstance;
+//import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 import static frc.robot.Constant.*;
-
 /**
  * This class is instanced by Main.j & automatically run
  * -- don't change name
@@ -41,21 +40,19 @@ public class Robot extends TimedRobot {
   // instance subsystem here in roboInit vs. RC, detail in subsys
   public static DriveMotorSubsys _motorSubsys;
 
-  public static OI _oi; // instance joystk & button bind
+  public static OI _oi; // has joystk defin & button bind
 
   // PID param now in drive subsys class var. to keep Robot.j uncluttered
   // static final double kP = 0.3 ....
 
-  // param for auto drive to position (in.), import from Constant.j
-  int targetDriveInch = autoDriveInch;
-  // unit conversion for flatbot, 1 wheel rot, 18.7in = 10700 tick
-  // 4.5 ft = 54in = ~32000
-  public static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
-  public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
+  // // unit conversion for flatbot, 1 wheel rot, 18.7in = 10700 tick
+  // // 4.5 ft = 54in = ~32000 -- moved to subsystem class var
+  // public static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
+  // public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
 
-  private final Command _simpleAuto = new GoToPosition(targetDriveInch);
-  private final Command _simplePlus = new GoToPosition(targetDriveInch + 24);
-  // private ParallelCommandGroup autoParallel;
+  // private final Command _simpleAuto = new GoToPosition(targetDriveInch);
+  // private final Command _simplePlus = new GoToPosition(targetDriveInch + 24);
+  // // private ParallelCommandGroup autoParallel;
 
   // declare auto chooser, define auto option, sched choice in autoInit
   private SendableChooser<Command> _autonChooser;
@@ -69,7 +66,7 @@ public class Robot extends TimedRobot {
 
     System.out.println("start robotInit");
     _motorSubsys = new DriveMotorSubsys();
-    _oi = new OI();
+    Robot._oi = new OI();
 
     // default commands are commands that are always running; 1072 sets
     // here vs. in RC, also others in RC constructor shift here; I prefer
@@ -79,11 +76,15 @@ public class Robot extends TimedRobot {
     // CommandScheduler.getInstance().setDefaultCommand(Indexer.getInstance(),
     // new IndexerManual());
 
-    // OI.getInstance();// instanced & named already, not sure why again?
+     // OI.getInstance();// instanced & named already, not sure why repeat?
     // DoubleSolenoid _pressure = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0,
     // 4);
     // _pressure.set(DoubleSolenoid.Value.kForward);
 
+     // param for auto drive to position (in.), import from Constant.j
+    final Command _simpleAuto = new GoToPosition(autoDriveInch);
+    final Command _simplePlus = new GoToPosition(autoDriveInch + 24);
+    // private ParallelCommandGroup autoParallel;
     _autonChooser = new SendableChooser<>();
     _autonChooser.setDefaultOption("simpleAuto", _simpleAuto);
     _autonChooser.addOption("goFarther", _simplePlus);
@@ -93,7 +94,7 @@ public class Robot extends TimedRobot {
     // if SD not enabled, does this appear in LV-dash's chooser field?
      SmartDashboard.putData("Auton Selector", _autonChooser);
     // sending data to chooser may require
-    NetworkTableInstance.getDefault().setUpdateRate(0.02);
+    //NetworkTableInstance.getDefault().setUpdateRate(0.02);
 
     System.out.println("robot initialized");
   } // end robotInit
@@ -109,8 +110,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); // yes: needed!
-    // 1072 gathers updated sensor from subsyst, puts on dashbd,
-    // et al, not sure how putData works
+    // 1072 gathers updated sensor from subsyst, puts on dashbd, etc.
     // SmartDashboard.putData(Drivetrain.getInstance());
     // SmartDashboard.putData(Climber.getInstance());
     // SmartDashboard.putData(Intake.getInstance());
@@ -148,6 +148,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // is this line redundant ?; should run default cmd w/o this
     CommandScheduler.getInstance().run();
+    // if not, should some cmd go here;
   }
 
   /**

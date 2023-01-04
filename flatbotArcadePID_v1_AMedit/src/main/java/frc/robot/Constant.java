@@ -4,7 +4,7 @@ package frc.robot;
 
 /**
  * Keep all the magic numbers here. At the bare minimum, put the CAN IDs
- * and timeout. Few used now, but maybe later
+ * and timeout. add all when finalized
  */
 public class Constant {
    public static final int autoDriveInch = 48;

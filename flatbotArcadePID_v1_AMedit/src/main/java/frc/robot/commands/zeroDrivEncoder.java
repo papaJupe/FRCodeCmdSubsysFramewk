@@ -5,7 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.*;
+//import frc.robot.*;
+import frc.robot.Robot;
 
 // called from OI on joy button 3 press, inits then blank 
 // execute() so disabling (?) periodic callback to CS ?
@@ -13,11 +14,10 @@ import frc.robot.*;
 public class zeroDrivEncoder extends CommandBase {
   public zeroDrivEncoder() {
     // Used to declare subsystem dependency
-    // e.g. requires(chassis);
     addRequirements(Robot._motorSubsys);
   }
 
-  // subsys method 'zeroE_' called just before this Command runs
+  // subsys method 'zeroEnc_' called just before this Command runs
   // first time; probably all it ever does since execute() empty
   @Override
   public void initialize() {
