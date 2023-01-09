@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------
-      zeroTestEncoders cmd                                                   
+      zeroDrivEncoders cmd                                                   
 ------------------------------------------------------------------*/
 
 package frc.robot.commands;
@@ -42,9 +42,4 @@ public class zeroDrivEncoder extends CommandBase {
   public void end(boolean endme) { // what to do?
   }
 
-  // Called when another command which requires one or more of the same
-  // subsystems is scheduled to run, cmd now not allowed
-  // @Override
-  // public void interrupted() {
-  // }
 }

@@ -14,7 +14,7 @@ import frc.robot.*; // things like OI, Constant class
 // import com.ctre.phoenix.motorcontrol.can.*;
 
 public class GoToPosition extends CommandBase {
-  //  value received/sent = inches to drive straight
+  // value received/sent = inches to drive straight
   int _target;
 
   // CONSTRUCTOR for cmd, called from OI by button _N_ press,
@@ -29,9 +29,9 @@ public class GoToPosition extends CommandBase {
   @Override // need to zero encoder here ?; slot likely already set
   public void initialize() {
     // Robot._motorSubsys.leftMaster.selectProfileSlot(Robot._motorSubsys
-     //  ._position_slot, 0);
+    // ._position_slot, 0);
     // Robot._motorSubsys.rightMaster.selectProfileSlot(Robot._motorSubsys
-    //._position_slot, 0);
+    // ._position_slot, 0);
     Robot._motorSubsys.zeroEncoder(0);
   }
 
@@ -57,10 +57,4 @@ public class GoToPosition extends CommandBase {
   public void end(boolean endme) { // need to do anthing ?
   }
 
-  // Called when another command which requires one or more of the same
-  // subsystems is scheduled to run -- no longer valid method ??
-  // @Override
-  // public void interrupted() {
-  // end();
-  // }
 }

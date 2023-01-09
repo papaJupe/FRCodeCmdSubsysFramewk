@@ -2,17 +2,22 @@
 
 // edited from Asid_1072 video 4 -- Cmd/Subsy framewk, PID for position
 // all periodic in Robot.j, oper input in OI, Const for flatbot, gamepd
-// asid,like 1072-22, eliminated RC; purpose here -- demo w/ flatbot
-// framewk for arcade drive, simple auto w/ PID, chooser using dashbd
-
-// todo in v.2 multiple auto cmd (chooser selected) sequential, (re)turn
+// asid,like 1072-22, eliminated RC; purpose here -- demo framework on
+// flatbot: arcade drive, simple auto w/ PID, chooser using dashbd
 
 // toDo here: check joystick for axis 1 = throttle, 0 = turn, button 
 // addr, encod direction; test kP etc on bench, re-tune on ground PRN
+// does auto chooser appear in DS, dash?
+
+/* OI has  button3.whenPressed(new zeroDrivEncoder());
+button5.whenPressed(new GoToPosition(-24));
+button6.whenPressed(new GoToPosition(24));
+*/
+
+// todo in v.2 multiple auto cmd (chooser selected) sequential, (re)turn
 
 package frc.robot;
 
-// imports et al from team 1072_22 <--uses Robot.j for Periodics etc
 // import edu.wpi.first.wpilibj.Joystick;
 // import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
@@ -23,18 +28,16 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
-// import frc.robot.auto.Autons; // define many cmdSequence
-// one will be selected by autonChooser
-
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 import static frc.robot.Constant.*;
+
 /**
  * This class is instanced by Main.j & automatically run
  * -- don't change name
  */
 public class Robot extends TimedRobot {
-  // no RContainer used, defaultCmd etc. set in robotInit
+  // no RContainer used, main instance config set in robotInit
   // operator interface is in OI vs. 'configButton' if RC used
   // declare local vars & const, later shift to Constant
   // instance subsystem here in roboInit vs. RC, detail in subsys
@@ -50,10 +53,6 @@ public class Robot extends TimedRobot {
   // public static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
   // public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
 
-  // private final Command _simpleAuto = new GoToPosition(targetDriveInch);
-  // private final Command _simplePlus = new GoToPosition(targetDriveInch + 24);
-  // // private ParallelCommandGroup autoParallel;
-
   // declare auto chooser, define auto option, sched choice in autoInit
   private SendableChooser<Command> _autonChooser;
 
@@ -66,7 +65,7 @@ public class Robot extends TimedRobot {
 
     System.out.println("start robotInit");
     _motorSubsys = new DriveMotorSubsys();
-    Robot._oi = new OI();
+    _oi = new OI();
 
     // default commands are commands that are always running; 1072 sets
     // here vs. in RC, also others in RC constructor shift here; I prefer
@@ -76,12 +75,12 @@ public class Robot extends TimedRobot {
     // CommandScheduler.getInstance().setDefaultCommand(Indexer.getInstance(),
     // new IndexerManual());
 
-     // OI.getInstance();// instanced & named already, not sure why repeat?
+    // OI.getInstance();// instanced & named already, not sure why repeat?
     // DoubleSolenoid _pressure = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0,
     // 4);
     // _pressure.set(DoubleSolenoid.Value.kForward);
 
-     // param for auto drive to position (in.), import from Constant.j
+    // param for auto drive to position (in.), import from Constant.j
     final Command _simpleAuto = new GoToPosition(autoDriveInch);
     final Command _simplePlus = new GoToPosition(autoDriveInch + 24);
     // private ParallelCommandGroup autoParallel;
@@ -92,9 +91,9 @@ public class Robot extends TimedRobot {
     // _autonChooser.addOption("One Ball Auton", Autons.ONE_BALL_AUTO);
 
     // if SD not enabled, does this appear in LV-dash's chooser field?
-     SmartDashboard.putData("Auton Selector", _autonChooser);
+    SmartDashboard.putData("Auton Selector", _autonChooser);
     // sending data to chooser may require
-    //NetworkTableInstance.getDefault().setUpdateRate(0.02);
+    // NetworkTableInstance.getDefault().setUpdateRate(0.02);
 
     System.out.println("robot initialized");
   } // end robotInit
@@ -127,11 +126,11 @@ public class Robot extends TimedRobot {
     // for test just go to position(inch)
     // final Command _simpleAuto = new GoToPosition(targetDriveInch);
     // _simpleAuto.schedule();
-  }  // end autoInitß
+  } // end autoInitß
 
   // autonomousPeriodic is called (~50 hz) during autonomous.
   // ?? if Periodics need explicit call to CS() in them or if
-  // this is redundant
+  // this is redundant; does auto cmd run despite this being empty?
   @Override
   public void autonomousPeriodic() {
     CommandScheduler.getInstance().run();

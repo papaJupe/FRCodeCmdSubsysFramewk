@@ -12,6 +12,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -52,7 +53,8 @@ public class DriveMotorSubsys extends SubsystemBase {
   // CONSTRUCTOR
   public DriveMotorSubsys() {
     controllerInit();
-    this.setDefaultCommand(new DriveWithPercent());
+    CommandScheduler.getInstance().setDefaultCommand(this, new DriveWithPercent());
+    // possible ? this.setDefaultCommand(new DriveWithPercent());
   }
 
   void controllerInit() { // initializes motor controller settings
@@ -124,14 +126,13 @@ public class DriveMotorSubsys extends SubsystemBase {
      * neutral within this range. ? like kI integ zone for all, or can use
      * both? presumably in encoder tick ?
      */
-    // leftMaster.configAllowableClosedloopError(slot kPIDLoopIdx, dbl N,
-    // int ms.);
+    // leftMaster.configAllowableClosedloopError(slot, dbl N, int ms.);
     leftMaster.configAllowableClosedloopError(0, 50, 20);
     rightMaster.configAllowableClosedloopError(0, 50, 20);
 
     // dampen abrupt starts in manual control
-    leftMaster.configOpenloopRamp(0.2, 20);
-    rightMaster.configOpenloopRamp(0.2, 20);
+    leftMaster.configOpenloopRamp(0.4, 20);
+    rightMaster.configOpenloopRamp(0.4, 20);
 
     // overrides default of 0.02 I think ? put in OI?
     // drive.setDeadband(0.04);
@@ -146,7 +147,8 @@ public class DriveMotorSubsys extends SubsystemBase {
     leftMaster.set(ControlMode.Position, tickTarget);
     rightMaster.set(ControlMode.Position, tickTarget);
   }
-// method called from zeroDrivEncod cmd
+
+  // method called from zeroDrivEncod cmd
   public void zeroEncoder(int pos) { // [pos,indx,timeout]
     leftMaster.setSelectedSensorPosition(pos, 0, TIMEOUT);
     rightMaster.setSelectedSensorPosition(pos, 0, TIMEOUT);
