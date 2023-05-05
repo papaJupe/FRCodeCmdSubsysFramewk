@@ -50,8 +50,6 @@ public class Robot extends TimedRobot {
     _motorSubsys = new DriveMotorSubsys();
     _oi = new OI();
 
-    // could set constants here
-
     // default commands are commands that are always running on the robot
     // seems like every subsys needing a Periodic should get one;
     // done here vs. RC, also others in RC constructor shift here

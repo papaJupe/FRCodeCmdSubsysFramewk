@@ -1,0 +1,115 @@
+Vspace/ autoSelectLVdash.txt  vs. using Java SmtDash
+  // to send / get choice from LV dash (may only handle String param)?
+     // probably usable w/ flat or Sub/Cmd framewk
+in roboInit:
+ SmartDashboard.putStringArray("Auto List", {"drive Forward", "drive Back", "somethinElse"};  // names of choices to use in switch block below, v.i.
+    System.out.println("robot initialized");
+  } // end robotInit
+
+  // autonomousInit is called at the start of autonomous
+  @Override
+  public void autonomousInit() {
+     String autoChoice = SmartDashboard.getString("Auto Selector", "drive Forward");
+    // would make dF the default choice
+    switch(autoChoice) {
+   case "drive Forward": (or could put code for auto here instead of a Cmd
+	  // will code run here if scheduled? or need to go in autoPerio
+	  // set cmd here _autoCmd = new myDrvFwdCmd(); break;
+	case "drive Back":
+	  // other choice  _autoCmd = new myDrvBakCmd(); break;
+	  //case "somethinElse":
+	  // turd choice
+	  
+   then schedule in autoInit or Perio
+  -----------------------------------
+using Java Smt Dash can populate chooser w/ String (flat framewk
+       or Command (Subsy/Cmd framewk)
+   in Robot.j 
+     pvt Command _autoComm
+  [ in roboInit ]
+		private static final String kDefaultAuto = "Default";
+		private static final String kCustomAuto = "My Auto";
+		private String m_autoSelected;
+		private final SendableChooser<String> m_chooser = new SendableChooser<>();
+	   // ? could just put string itself into param field rather than var
+		m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+		m_chooser.addOption("My Auto", kCustomAuto);
+		SmartDashboard.putData("Auto choices", m_chooser);
+   
+     @Override
+  public void autonomousInit() {
+    m_autoSelected = m_chooser.getSelected(); // getting a String
+    System.out.println("Auto selected: " + m_autoSelected);
+  }
+
+  public void autonomousPeriodic() { ? if possible to put in autoInit
+    switch (m_autoSelected) {
+      case kCustomAuto:
+		// custom auto code, either low level 
+		// or _autoComm = instancing some Cmd
+        break;
+      case kDefaultAuto:
+      default:
+        // Put default auto code here or instance existing file
+        break;
+    }  // end switch
+    
+    then here or autoInit, must schedule the _autoComm just created
+    	_autoComm.schedule();
+-------------------------------
+
+using Java Smt Dash to populate chooser w/ new instance of existing Command
+  Manning19 does all in robot.j, no RC; ? if works in current framewrk
+ 
+ in Robot.j, class var made
+	 Command _autoComm
+	 SendableChooser <Command> _chooser = new SendChoo<>();
+ 
+ in robotInit
+	//  make unnamed instance of existing cmd.j x 2;  need this.? 
+	this._chooser.setDefaultOption("Default Auto", new myDefaultAutoCmd(); 
+	this._chooser.addOption("Fancy Auto", new myFancyAutoCmd();
+	SmartDashboard.putData("Auto choices", this._chooser);
+	
+in autoInit 
+  // assign chosen command instance to _autoComm var (naming it)
+	this._autoComm = _chooser.getSelected();
+	if(this._autoComm != null)
+	this._autoComm.start();  // now _autoComm.schedule(); or put in autoPerio?
+	
+[autoPeriod empty]
+
+in teleInit  // be sure autoCmd stops
+	if (this._autoComm != null) this._autoComm.cancel();
+	   
+	 ------------   ------------  ------------
+ use Smt Dash java to populate chooser as in TradHatch22 (wpilib exampl) w/ RC
+    	in RC: instance for Cmds to choose from, use existing :
+    	commands.DriveDistance, .ComplexAutoCmd
+    	
+ 	robot.j declare pvt class var: RC, Cmd autoComm
+ 	in roboInit make new RCinstance 
+ 		[v.i. pvt final cmc instance only avail to robot.j via:
+ 	 	
+ 	in autoInit: autoComm = RCinstance.getAutoCmd(); then sched it if not null
+ 	
+	in RC class var  (? could do these in Robot.j)
+ 		pvt final Cmd myDefaultAuto = new DriveDistance(posit, speed);
+ 		pvt final Cmd myFancyAuto = new ComplexAutoCmd(_driveInst,_armInst); 
+ 		SendableChooser<Command> m_chooser = new SendableChooser<>();
+   
+   in RC constructor  use 2 instance from above (need to do in roboInit ?)
+   		m_chooser.setDefaultOption("Default Auto", myDefaultAuto(); 
+		m_chooser.addOption("Fancy Auto", myFancyAuto();
+		SmartDashboard.putData("Auto choices", m_chooser);
+	
+	class method for Robot.j to get auto command
+	public Cmd getAutoCmd()
+		return m_chooser.getSelected(); // returns cmd instance chosen on SD
+		  // to Robot.j's autoInit which schedules it
+	------------------------------
+  put/ read from ? bool butt on DB's, //SmartDashboard.putBoolean("DB/Button 0", true);
+ 
+  boolean buttonValue = SmartDashboard.getBoolean("DB/Button 0", false);
+   but can you control on DB then read, or make your own button on SmtDB instead
+  as: boolean buttonValue = SmartDashboard.put/getBoolean("Butt 0", false);
