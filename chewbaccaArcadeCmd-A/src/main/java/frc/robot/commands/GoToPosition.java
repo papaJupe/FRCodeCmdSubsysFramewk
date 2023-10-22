@@ -1,21 +1,20 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// chewbaccArcadeCmd                  GoToPosition cmd  aka GTP
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 
 import frc.robot.Robot;
-import static frc.robot.Constant.*;
 import frc.robot.subsystems.DriveSubsys;
 
-
 public class GoToPosition extends CommandBase {
-  /** Creates a new GoToPosition. */
-  int _target;
 
+  int _target;
+  int leftEnco = 0;
+  int riteEnco =0;
+
+  /** Constructor creates a new GoToPosition cmd */
   public GoToPosition(int targetPos) {
 
     _target = targetPos;
@@ -23,54 +22,57 @@ public class GoToPosition extends CommandBase {
     addRequirements(Robot._myDrive);
   }
 
- // Called just before this Cmd runs first time (each button press?);
+  // Called just before this Cmd runs very first time after new deploy ;
   // data slot 0-3, pid loop 0-1
-  @Override // need to zero encoder; PID slot likely already set
+  @Override // need to zero encoder; PID slot likely already def. to 0
   public void initialize() {
     // Robot._motorSubsys.leftMaster.selectProfileSlot(Robot._motorSubsys
     // ._position_slot, 0);
     // Robot._motorSubsys.rightMaster.selectProfileSlot(Robot._motorSubsys
     // ._position_slot, 0);
     Robot._myDrive.zeroEncoder(0);
+    SmartDashboard.putString("GTPcmdFin?", "1stInit");
   }
 
   // subsyst method called repeatedly when this Cmd is scheduled
-  // inch param sent to subsys
+  // param in inch
   @Override
   public void execute() {
-    Robot._myDrive.goStraightPosition(_target);
+    Robot._myDrive.goStratPosit(_target);
   }
 
   // ... returns true when this Command no longer needs to run execute();
   // here, when signif. joystick movement detected or target pos reached
   @Override
   public boolean isFinished() { // must finish for sequence it's in to advance
-    // need to see value to tell if it's getting close to target w/ pid #'s'
-    int leftEnco = (int) DriveSubsys._leftEncoder.getPosition();
-    int riteEnco = (int) DriveSubsys._rightEncoder.getPosition();
-    
-    boolean _atTargetPos = Math.abs(leftEnco) + Math.abs(riteEnco) + 50 >= (2 * Math.abs(_target * kDriveInch2Tick));
-    new PrintCommand("target is " + String.valueOf(_target));
-    new PrintCommand("rt+leftEnco avg = " + (String.valueOf((leftEnco + riteEnco)/2)));
+    // encod value tell if it's getting close to target w/ pid #'s'
+    leftEnco = (int) DriveSubsys._leftEncoder.getPosition();
+    riteEnco = (int) DriveSubsys._rightEncoder.getPosition();
+
+    boolean _atTargetPos = Math.abs(leftEnco) + Math.abs(riteEnco) + 1 >= (2 * Math.abs(_target));
+    System.out.println("target is " + _target);
+    System.out.println("rt+leftEnco = " + (leftEnco + riteEnco));
 
     if (_atTargetPos) {
-      new PrintCommand("at _targetPos, fin GTPcmd");
+      SmartDashboard.putString("GTPcmdFin?", "true");
       return true;
     } else {
-      new PrintCommand("not _aTarget yet");
-    return false;
+      SmartDashboard.putString("GTPcmdFin?", "not fin");
+      return false;
     }
 
     // return (Math.abs(Robot._oi.getLeftY()) > (OI.deadzone * 3) || _atTargetPos);
-  }  // end isFinished
+  } // end isFinished
 
   // Called once after isFinished returns true
   @Override
-  public void end(boolean endme) { // need to do anything ?
-
+  public void end(boolean endme) { 
     Robot._myDrive.zeroEncoder(0);
-    new PrintCommand("GTP says endme!");
+    leftEnco = 0;
+    riteEnco = 0;
 
+    System.out.println("GTP says endme!");
+    SmartDashboard.putString("GTPcmdFin?", String.valueOf(endme));
   }
 
-}  //end GTP class
+} // end GTP class

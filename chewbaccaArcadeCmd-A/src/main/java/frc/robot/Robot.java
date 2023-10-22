@@ -1,7 +1,8 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// chewbaccArcadeCmd-A        Robot.j
 
+// adapting flat version using no RC to partial Subsy/Cmd to run Sequ. auto;
+// main instances in Robot.j, user interface in OI, few value in Constant
+// untested in hardware as of 230608
 package frc.robot;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -15,7 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.commands.*;
 import frc.robot.subsystems.DriveSubsys;
-import static frc.robot.subsystems.DriveSubsys.*;
+import static frc.robot.subsystems.DriveSubsys.*; 
+import static frc.robot.Constant.*;
 
 /**
  * The VM is configured to automatically run this class, call the functions of
@@ -25,7 +27,6 @@ import static frc.robot.subsystems.DriveSubsys.*;
  */
 public class Robot extends TimedRobot {
 
-  private static final int autoDriveInch = 24;
   public static DriveSubsys _myDrive = new DriveSubsys();
   public static OI _operatorInterface;
 
@@ -39,38 +40,38 @@ public class Robot extends TimedRobot {
 // then in ? AutoInit? v.i.
 
   /**
-   * This function is run when the robot is first started and should be used for
-   * initialization.
+   * This function is run ONCE when the robot is first started and 
+   * should be used for initialization.
    */
   @Override
   public void robotInit() {
     // RobotContainer formerly held OI instance, button bindings (now in OI class),
-    // and put autonomous chooser on the dashboard (now in Robot.j, autoInit).
+    // also put autonomous chooser on the dashboard (now in Robot.j, autoInit).
     // m_robotContainer = new RobotContainer();
     // object instances [drive, OI, autoCmd, chooser for auto] now setup here
     
     System.out.println("start robotInit");
 
-     _operatorInterface = new OI(); // hold oper Input, joystk defin & button bind
+    _operatorInterface = new OI(); // hold oper Input, joystk defin & button bind
 
-     // only works here, tried in subsyst, others -- fail on deploy to RRio
-     _myDrive.setDefaultCommand(new DriveWithPercent());
-     // default commands are commands that are always running; 1072 sets
-    // here vs. in RC, but this syntax fails in '22-23; also attempt
+    // only works here, tried in subsyst, et al -- fail on deploy to RRio
+    _myDrive.setDefaultCommand(new DriveWithPercent());
+    // default commands are commands that are always running; 1072 sets
+    // here vs. in RC, but this (v.i.) syntax fails in '22-23;  attempt
     // to set default cmd in each subsys to unclutter this class failed:
     // CommandScheduler.getInstance().setDefaultCommand(_motorSubsys,
-    // new DriveWithPercent());  maybe old syntax
+    // new DriveWithPercent());  maybe obsolete syntax
     // CommandScheduler.getInstance().setDefaultCommand(Indexer.getInstance(),
     // new IndexerManual());
 
     // DoubleSolenoid _valve = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0, 4);
     // _valve.set(DoubleSolenoid.Value.kForward);
 
-    // when Auto_ Mode activated, Robot.auto_Init() call selected cmd using its
+    // when Auto mode activated, Robot.autoInit() calls selected cmd using its
     // instance from here and schedules cmd it receives
     
-    final Command _simpleAuto = new GoToPosition(autoDriveInch);
-    final Command _simplePlus = new GoToPosition(autoDriveInch + 24);
+    final Command _simpleAuto = new GoToPosition(autoDriveInch - 12);
+    final Command _simplePlus = new GoToPosition(autoDriveInch + 12);
     final SequentialCommandGroup _autoSequence1 = new autoFwdRotBak();
 
     _autonChooser = new SendableChooser<>();
@@ -78,34 +79,35 @@ public class Robot extends TimedRobot {
     _autonChooser.addOption("goFarther", _simplePlus);
     _autonChooser.addOption("fwd-Rot180-bak", _autoSequence1);
     
-        // sending data to chooser may require
-        NetworkTableInstance.getDefault();
+    // sending data to chooser may require
+    NetworkTableInstance.getDefault();
 
     // if SD not enabled, does this appear in LV-dash's chooser / DS? NO
-    // v. mannCode-19 how to add to LV dash chooser instead
+    
     SmartDashboard.putData("Auton Selector", _autonChooser);
 
-    // display PID coefficients on SmartDashboard
-  // SmartDashboard.putNumber("P Gain", kP);
-  // SmartDashboard.putNumber("I Gain", kI);
-  // SmartDashboard.putNumber("D Gain", kD);
-  // SmartDashboard.putNumber("I Zone", kIz);
-  // SmartDashboard.putNumber("Feed Forwd", kFF);
-  // SmartDashboard.putNumber("Max Output", kMaxOutput);
-  // SmartDashboard.putNumber("Min Output", kMinOutput);
+    // display PID coefficients (from DriveSubsys) on SmartDashboard
+  SmartDashboard.putNumber("P Gain", kP);
+  SmartDashboard.putNumber("I Gain", kI);
+  SmartDashboard.putNumber("D Gain", kD);
+  SmartDashboard.putNumber("I Zone", kIz);
+  SmartDashboard.putNumber("Feed Forwd", kFF);
+  SmartDashboard.putNumber("Max Output", kMaxOutput);
+  SmartDashboard.putNumber("Min Output", kMinOutput);
   // SmartDashboard.putNumber("Set Rotations", 0);
 
-   // to follow live value of position would need in roboPeriod:
-   SmartDashboard.putNumber("SetPoint", tickTarget);
-   SmartDashboard.putNumber("L encod Pos", _leftEncoder.getPosition());
+  // to see live value of position would need in roboPeriod or other:
+  // these static var come from DrivSubsys
+  SmartDashboard.putNumber("SetPoint", inchTarget);
+  SmartDashboard.putNumber("L encod Pos", _leftEncoder.getPosition());
 
-    System.out.println("robot initialized");
+  System.out.println("robot initialized");
 
   } // end robotInit()
 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for tasks
-   * like diagnostics that you want ran during disabled, autonomous, teleoperated
+   * like diagnostics that you want run during disabled, autonomous, teleoperated
    * and test. it runs after the mode specific periodic functions, but before
    * LiveWindow and SmartDashboard integrated updating.
    */
@@ -120,8 +122,8 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
   }
 
-      //to reset pid values while running; would this work in disabled mode?
-      // // read PID coefficients from SmartDashboard
+      // to reset pid values while running; 
+      // read PID coefficients from SmartDashboard
       // double p = SmartDashboard.getNumber("P Gain", 0);
       // double i = SmartDashboard.getNumber("I Gain", 0);
       // double d = SmartDashboard.getNumber("D Gain", 0);
@@ -131,7 +133,10 @@ public class Robot extends TimedRobot {
       // double min = SmartDashboard.getNumber("Min Output", 0);
   
       // if PID coefficients on SmartDashboard have changed, write new values
-      // if((p != kP)) { m_pidController.setP(p); kP = p; }
+     // if(p != kP) {DriveSubsys._leftPIDControl.setP(p); kP = p;}
+
+      // if(p != kP) { _rightPIDControl.setP(p); kP = p; }
+
       // if((i != kI)) { m_pidController.setI(i); kI = i; }
       // if((d != kD)) { m_pidController.setD(d); kD = d; }
       // if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
@@ -143,7 +148,7 @@ public class Robot extends TimedRobot {
   
   @Override
   public void autonomousInit() {
-    // chooser instance placed on SmtDash by roboInit
+    // chooser cmd options placed on SmtDash by roboInit
     if (_autonChooser.getSelected() != null) {
       _autonChooser.getSelected().schedule();
     }
@@ -158,7 +163,7 @@ public class Robot extends TimedRobot {
   //case "somethinElse":
   // turd choic
 
-  }  //end roboInit
+  }  //end autoInit
 
   /** This function is called periodically during autonomous. */
   @Override
@@ -170,7 +175,8 @@ public class Robot extends TimedRobot {
     // This makes sure that the auto CMD stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
-    // this line or comment it out.
+    // this line or comment it out. [problem if we don't have
+    // a name of cmd instance running]
     // if (_autoCommand != null) {
     //   _autoCommand.cancel();
     // }

@@ -23,7 +23,7 @@ public class OI {
 
   // CONSTRUCTOR
   public OI() {
-// instead of Trigger, clearer to use BoolSupplier JB interface to it
+// instead of Trigger, clearer to use BoolSupplier JB, interface to it
 
     final JoystickButton
         button3 = new JoystickButton(stick, 3),

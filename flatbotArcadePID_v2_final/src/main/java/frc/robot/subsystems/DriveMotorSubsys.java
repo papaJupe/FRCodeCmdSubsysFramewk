@@ -8,7 +8,7 @@ package frc.robot.subsystems;
 
 /** subsystems import Classes that have methods they
  * can use themselves or provide to commands that
- * require them
+ * require them when controlling this subsystem
  */
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,9 +20,9 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 
-// static import to reduce code volume
+// static import Const reduces code volume; but 
+// for sparsest code, few are used, most specified inline here
 import static frc.robot.Constant.*;
-// import frc.robot.Robot;
 
 public class DriveMotorSubsys extends SubsystemBase {
   // CAN ID for flatbot
@@ -41,7 +41,8 @@ public class DriveMotorSubsys extends SubsystemBase {
   // needed to instance motor as wpi_talonSRX to work as DD param
   DifferentialDrive _diffDrive = new DifferentialDrive(leftMaster, rightMaster);
 
-  // set here after tuning in PT; could shift to Constant when finalized
+  // set here after tuning in PhoeTune; could shift to Constant.j but
+  // only ever used for this subsystem, so this keeps code the simplest
   static final double kP_pos = 0.3;
   static final double kI_pos = 0.00015;
   static final double kD_pos = 50.0;
@@ -150,7 +151,7 @@ public class DriveMotorSubsys extends SubsystemBase {
     rightMaster.set(ControlMode.Position, -tickTarget);
   }
 
-  // method called from zeroDrivEncod cmd & GTP's endme()
+  // method called from zeroDrivEncod cmd & GTP's end()
   public void zeroEncoder(int pos) { // [pos,indx,timeout]
     leftMaster.setSelectedSensorPosition(pos, 0, TIMEOUT);
     rightMaster.setSelectedSensorPosition(pos, 0, TIMEOUT);

@@ -1,12 +1,14 @@
-package frc.robot.commands;
+package frc.robot;
 
 import static frc.robot.Constant.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.GoToPosition;
+import frc.robot.commands.zeroDrivEncoder;
 
 public class OI {
 
-    public static double deadzone = 0.04;
+    private static double dedzon = 0.04;
 
 // stick instance only used here, so why make public ?
     private static Joystick _driverStick = new Joystick(kDriveControlPort);
@@ -28,7 +30,8 @@ public OI() {
   //     button5 = new JoystickButton(stick, 5), button6 = new JoystickButton(stick, 6),
   //     button7 = new JoystickButton(stick, 7), button8 = new JoystickButton(stick, 8);
 
-  button3.onTrue(new zeroDrivEncoder());
+  // ? possible for button to call method in subsyst directly
+  button3.onTrue(new zeroDrivEncoder()); // cmd used for this button + other cmd x2
   button5.onTrue(new GoToPosition(-24));
   button6.onTrue(new GoToPosition(24));
 
@@ -41,9 +44,9 @@ public OI() {
   // driverGamepad.getButtonY().whenPressed(new SetClimberPosition
   // (Climber.DOWN_HEIGHT, 0.15));
 }
-  // applies deadzone to a joystick input from -1 to 1
+  // applies deadzone to joystick input from -1 to 1, used by DWP cmd only
   public static double deadzone(double input) {
-    if (deadzone > Math.abs(input)) // if input smaller than deadzone
+    if (Math.abs(input) < dedzon) // if input smaller than deadzone
       return 0;
     return input;
   }

@@ -1,15 +1,15 @@
 /*-----------------------------------------------------------------
-  zeroDrivEncoders cmd                                                   
+  zeroDrivEncoder cmd                                                   
 ------------------------------------------------------------------*/
 
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-//import frc.robot.*;
+
 import frc.robot.Robot;
 
 // called from OI on joy button 3 press, inits then blank 
-// execute() so disabling (?) periodic callback to CS ?
+// execute() [disabling (?) periodic callback to CS ?]
 //CONSTRUCTOR
 public class zeroDrivEncoder extends CommandBase {
   public zeroDrivEncoder() {
@@ -31,7 +31,7 @@ public class zeroDrivEncoder extends CommandBase {
   }
 
   // returns true when this Command no longer needs to run execute()
-  // not clear how that need determined -- execute() being empty?
+  // I guess immediately since execute() is empty?
   @Override
   public boolean isFinished() {
     return true;
@@ -39,7 +39,7 @@ public class zeroDrivEncoder extends CommandBase {
 
   // Called once after isFinished returns true
   @Override
-  public void end(boolean endme) { // what to do?
+  public void end(boolean endme) { // nothing to do?
   }
 
 }

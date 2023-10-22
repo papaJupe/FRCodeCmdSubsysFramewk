@@ -1,26 +1,24 @@
-// flatbotArcadePID_v2_AMedit     Robot.j
+// flatbotArcadePID_v2_AM_final     Robot.j
 
 // edited from Asid_1072 video 4 -- Cmd/Subsy framewk, PID for position
 // all periodic in Robot.j, oper input in OI, Const for flatbot, gamepd
-// asid-like 1072-22, eliminated RC; purpose here -- demo framework on
+// asid-like 1072-22, eliminated RC; purpose here -- demo that framework on
 // flatbot: arcade drive, simple auto w/ PID, chooser using dashbd
 
-// done - OK [check joystick for axis 1 = throttle, 0 = turn, button 
+// all OK [check joystick for axis 1 = throttle, 0 = turn, button 
 // addr, encod direction; test kP etc on bench, auto chooser on SmtDash] 
-// does auto chooser appear in DS's default dashbd? no; PID OK on ground? Y
-// added in v.2 multiple auto cmd (chooser selected), sequential drive, (re)turn
-// sequ cmd group not working as is, possibly cmd not finishing cleanly
+// does auto chooser appear in DS's default dashbd? no; PID OK on ground? yes
+// added in v.2 multiple auto cmd (chooser selected), seq of: drive, rot 180,
+// drive back. edited to fix cmd in seq. not ending, test on flatbot OK.
+// [lots of param value display in SmtDash to debug sequential auto cmd]
 
-/* OI has  
+/* OI codes these button for manual drive to pre-set positions
 button3.onTrue(new zeroDrivEncoder());
 button5....(new GoToPosition(-24));
 button6....(new GoToPosition(24));
 */
 
 package frc.robot;
-
-// import edu.wpi.first.wpilibj.Joystick;
-// import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 import edu.wpi.first.wpilibj2.command.Command;
 //import edu.wpi.first.networktables.NetworkTableInstance;
@@ -41,19 +39,16 @@ import static frc.robot.Constant.*;
  */
 public class Robot extends TimedRobot {
   // no RContainer used; main instance config set in robotInit;
-  // operator interface is in OI vs. 'configButton' when RC used;
-  // declare local vars & const here, later shift to Constant;
+  // operator interface is in OI vs. 'configButton()' when RC used;
+  // declare local vars & const here, later could shift to Constant;
   // instance subsystem here in roboInit vs. RC, config detail in subsys
   public static DriveMotorSubsys _motorSubsys = new DriveMotorSubsys();
-// not clear why I can instance motor subsyst and not others here, eg OI?
 
-  public static OI _oi; // hold operatorInput, joystk defin & button bind
+  public static OI _oi; // define operatorInput, joystk defin & button bind
 
-  // PID param (later) in Constant to keep Robot.j uncluttered
-  // static final double kP = 0.3 ....
-// these in Constant.j now:
-  // // unit conversion for flatbot, 1 wheel rot, 18.7in = 10700 tick
-  // // 4.5 ft = 54in = ~32000 -- moved to subsystem class var
+  // PID param in subsystem; these param in Constant.j now:
+  // unit conversion for flatbot, 1 wheel rot, 18.7in = 10700 tick
+  // 4.5 ft = 54in = ~32000
   // public static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
   // public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
 
@@ -63,7 +58,7 @@ public class Robot extends TimedRobot {
   /**
    * robotInit runs when the robot is first started up and should be
    * used for initialization, instance basic subsys needed by cmd, configs
-   * same things done in RoboCont when it was used
+   * these things done in RoboContainer when it was used
    */
   @Override
   public void robotInit() {
@@ -85,11 +80,11 @@ public class Robot extends TimedRobot {
 
     // OI.getInstance();// instanced & named above, why repeat?
     // DoubleSolenoid _pressure = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0,
-    // 4);
+    // 4);  maybe old syntax
     // _pressure.set(DoubleSolenoid.Value.kForward);
 
-    //... when Auto_ Mode activated, Robot.auto_Init() call selected cmd using its
-    // instance from here and schedules cmd it receives
+    //... when Auto_ Mode activated, Robot.auto_Init() calls selected cmd using its
+    // instance made here and schedules cmd it receives
     
     final Command _simpleAuto = new GoToPosition(autoDriveInch);
     final Command _simplePlus = new GoToPosition(autoDriveInch + 24);
@@ -129,12 +124,12 @@ public class Robot extends TimedRobot {
   // autonomousInit is called at the start of autonomous
   @Override
   public void autonomousInit() {
-    // chooser instance comes from roboInit
+    // chooser instance created in roboInit
     if (_autonChooser.getSelected() != null) {
       _autonChooser.getSelected().schedule();
     }
 
-    // for test just go to position(inch)
+    // for test can just go to position(inch)
     // final Command _simpleAuto = new GoToPosition(targetDriveInch);
     // _simpleAuto.schedule();
   } // end autoInit
