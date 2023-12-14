@@ -30,7 +30,7 @@ public class RotateInPlace extends CommandBase {
     // ._position_slot, 0);
     // Robot._motorSubsys.rightMaster.selectProfileSlot(Robot._motorSubsys
     // ._position_slot, 0);
-    Robot._myDrive.zeroEncoder(0);
+    Robot._myDrive.zeroEncoder();
   }
 
   // Called every time the scheduler runs while the command is scheduled
@@ -63,7 +63,7 @@ public class RotateInPlace extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean endme) {
-    Robot._myDrive.zeroEncoder(0);
+    Robot._myDrive.zeroEncoder();
     leftEnco = 0;
     riteEnco = 0;
     System.out.println("RIP@end!");

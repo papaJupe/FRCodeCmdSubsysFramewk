@@ -1,5 +1,6 @@
 /*-----------------------------------------------------------------
-  zeroDrivEncoder cmd                                                   
+  zeroDrivEncoder cmd     not really necessary when button press
+   can use Instant Command    kept for other possible use                                          
 ------------------------------------------------------------------*/
 
 package frc.robot.commands;
@@ -9,12 +10,13 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 
 // called from OI on joy button 3 press, inits then blank 
-// execute() [disabling (?) periodic callback to CS ?]
+// execute() but likely has persistent action while pressed
+// unless isFinished stops after one cycle
 //CONSTRUCTOR
 public class zeroDrivEncoder extends CommandBase {
   public zeroDrivEncoder() {
     // Used to declare subsystem dependency
-    addRequirements(Robot._motorSubsys);
+    addRequirements(Robot.motorSubsys);
   }
 
   // subsys method 'zeroEnc_' called just before this Command 'runs'
@@ -22,7 +24,7 @@ public class zeroDrivEncoder extends CommandBase {
   @Override
   public void initialize() {
     System.out.println("zeroing encoders");
-    Robot._motorSubsys.zeroEncoder(0);
+    Robot.motorSubsys.zeroEncoder();
   }
 
   // Called repeatedly when this Command is scheduled to run

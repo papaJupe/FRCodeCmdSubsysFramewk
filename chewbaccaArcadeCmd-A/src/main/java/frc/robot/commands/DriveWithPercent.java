@@ -5,10 +5,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.OI;
 import frc.robot.Robot;
 
-
 public class DriveWithPercent extends CommandBase {
   // CONSTRUCTOR
-  // instance in robot.j (roboIinit) as default for _myDrive
+  // instance in robot.j (roboInit) as default for _myDrive
   public DriveWithPercent() {
     addRequirements(Robot._myDrive);
   } // end constructor
@@ -16,7 +15,7 @@ public class DriveWithPercent extends CommandBase {
   // Called just before this Command runs the very first time
   @Override
   public void initialize() {
-    Robot._myDrive.zeroEncoder(0);
+    Robot._myDrive.zeroEncoder();
     System.out.println("DWPcmd init");
   }
 

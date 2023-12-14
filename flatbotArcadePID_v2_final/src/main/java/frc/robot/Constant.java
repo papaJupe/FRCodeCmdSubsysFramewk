@@ -4,10 +4,13 @@ package frc.robot;
 
 /**
  * Keep your magic numbers here. At the bare minimum, put the CAN IDs
- * and timeout.
+ * and timeout. AM favors using this for value backup but putting 
+ * numbers in use in the class where they are used; can make a static
+ * inner class if lots of numbers, so easily accessible from other
+ * classes as well, PRN
  */
 public class Constant {
-  public static final int autoDriveInch = 48;
+  public static final int autoDriveInch = 42;
   public static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
   public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
 

@@ -10,13 +10,13 @@ package frc.robot.subsystems;
 //import static frc.robot.Constant.*;
 
 import com.revrobotics.CANSparkMax;
-// import com.revrobotics.CANSparkMax.ControlType.*;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMaxLowLevel.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsys extends SubsystemBase {
@@ -36,7 +36,7 @@ public class DriveSubsys extends SubsystemBase {
   public static RelativeEncoder _leftEncoder; // used in roboInit/Period
   public static RelativeEncoder _rightEncoder;
 
-  public static double kP = 0.15, kI = 0, kD = 0, kIz = 0, kFF = 0, kMaxOutput = 0.1, kMinOutput = -0.1;
+  public static double kP = 0.15, kI = 0, kD = 0, kIz = 0, kFF = 0, kMaxOutput = 0.5, kMinOutput = -0.5;
   public static int inchTarget = 0; // drive goal inch, var sent to SD too
 
   /* CONSTRUCT a new Subsystem instance */
@@ -82,7 +82,7 @@ public class DriveSubsys extends SubsystemBase {
     _leftEncoder = _leftMaster.getEncoder();
     _rightEncoder = _rightMaster.getEncoder();
 
-     // inch distance = to 1 rotat
+     // inch distance = to 1 rotat, if 6 in. diam, geaRatio 1:8
      _leftEncoder.setPositionConversionFactor(Math.PI * 6 / 8); // ~2.2
      _rightEncoder.setPositionConversionFactor(Math.PI * 6 / 8); // ~2.2
 
@@ -136,12 +136,12 @@ public class DriveSubsys extends SubsystemBase {
   }
 
   // method called from zeroDrivEncod cmd & GTP's endme()
-  public void zeroEncoder(int pos) { // [pos,indx,timeout]
-    _leftEncoder.setPosition(pos);
-    _rightEncoder.setPosition(pos);
+  public void zeroEncoder() { // [pos,indx,timeout]
+    _leftEncoder.setPosition(0);
+    _rightEncoder.setPosition(0);
   }
 
-  // class' method for cmds to call on an instance of 'this' --
+  // class' method for cmds
   // should have different name than super's method to avoid confusion
   public void arcaDriv(double throttle, double turn) {
     // method from diff drive class works on instance of it
@@ -177,6 +177,10 @@ public class DriveSubsys extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+public Command exampleMethodCommand() {
+    return null;
+}
 
   // @Override
   // public void simulationPeriodic() {

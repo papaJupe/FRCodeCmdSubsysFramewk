@@ -2,26 +2,24 @@
 
 // edited from Asid_1072 video 4 -- Cmd/Subsy framewk, PID for position
 // all periodic in Robot.j, oper input in OI, Const for flatbot, gamepd
-// asid-like 1072-22, eliminated RC; purpose here -- demo that framework on
-// flatbot: arcade drive, simple auto w/ PID, chooser using dashbd
+// as did in 1072-22, eliminated RC; purpose here -- demo that framework
+// on flatbot: arcade drive, simple auto w/ PID, chooser using smtDashbd
 
-// all OK [check joystick for axis 1 = throttle, 0 = turn, button 
+// all OK [check joystick for axis 1 = throttle, 0/4 = turn, button 
 // addr, encod direction; test kP etc on bench, auto chooser on SmtDash] 
-// does auto chooser appear in DS's default dashbd? no; PID OK on ground? yes
+// does auto chooser appear in LV default dashbd? no; PID OK on ground Y
 // added in v.2 multiple auto cmd (chooser selected), seq of: drive, rot 180,
 // drive back. edited to fix cmd in seq. not ending, test on flatbot OK.
 // [lots of param value display in SmtDash to debug sequential auto cmd]
 
-/* OI codes these button for manual drive to pre-set positions
-button3.onTrue(new zeroDrivEncoder());
-button5....(new GoToPosition(-24));
-button6....(new GoToPosition(24));
-*/
+/* OI codes these button for manual straight drive to pre-set positions
+button1.onTrue(new zeroDrivEncoder());
+button3....(new GoToPosition(-24));
+button2....(new GoToPosition(24));*/
 
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -30,116 +28,103 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
-import static frc.robot.Constant.*;
+//import static frc.robot.Constant.*;
 
 /**
  * This class is instanced by Main.j & automatically run
  * -- don't change name; 'Robot' works as instance name for
- * other class' reference 
+ * other class' reference to objects here 
  */
 public class Robot extends TimedRobot {
-  // no RContainer used; main instance config set in robotInit;
-  // operator interface is in OI vs. 'configButton()' when RC used;
+  // no RContainer used; main instance configs set in robotInit;
+  // operator interface is in OI vs. 'configButtonB()' when RC used;
   // declare local vars & const here, later could shift to Constant;
-  // instance subsystem here in roboInit vs. RC, config detail in subsys
-  public static DriveMotorSubsys _motorSubsys = new DriveMotorSubsys();
+  // instance subsystem here (in roboInit vs. RC), config detail in subsys
+  public static DriveMotorSubsys motorSubsys = new DriveMotorSubsys();
 
-  public static OI _oi; // define operatorInput, joystk defin & button bind
+  public static OI oi; // define operatorInput, joystk defin & button bind
 
-  // PID param in subsystem; these param in Constant.j now:
+  // PID param in subsystem; backup also in Constant.j:
   // unit conversion for flatbot, 1 wheel rot, 18.7in = 10700 tick
   // 4.5 ft = 54in = ~32000
   // public static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
   // public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
 
   // declare auto chooser, auto option in roboInit; sched choice in autoInit
-  private SendableChooser<Command> _autonChooser;
+  private SendableChooser<Command> autonChooser;
 
-  /**
-   * robotInit runs when the robot is first started up and should be
+  /* robotInit runs when the robot is first started up and should be
    * used for initialization, instance basic subsys needed by cmd, configs
-   * these things done in RoboContainer when it was used
+   * things done in RobotContainer before
    */
   @Override
   public void robotInit() {
 
     System.out.println("start robotInit");
 
-    // only works here, tried in subsyst, others -- fail on deploy to RRio
-    _motorSubsys.setDefaultCommand(new DriveWithPercent());
+    // default commands are commands that are always running;
+    // only works here, tried in subsyst et. al. <-- fail on deploy
+    motorSubsys.setDefaultCommand(new DriveWithPercent());
 
-    _oi = new OI();
+     oi = new OI();  // operator interface, user controls
 
-    // default commands are commands that are always running; 1072 sets
-    // here vs. in RC, also others in RC constructor shift here; attempt
-    // to set default cmd in each subsys to unclutter this class failed:
-    // CommandScheduler.getInstance().setDefaultCommand(_motorSubsys,
-    // new DriveWithPercent());  maybe old syntax
-    // CommandScheduler.getInstance().setDefaultCommand(Indexer.getInstance(),
-    // new IndexerManual());
+ 
+    // also others in RC constructor shift here
 
-    // OI.getInstance();// instanced & named above, why repeat?
-    // DoubleSolenoid _pressure = new DoubleSolenoid(PneumaticsModuleType.REVPH, 0,
-    // 4);  maybe old syntax
-    // _pressure.set(DoubleSolenoid.Value.kForward);
+    //... when Auto_ Mode enabled, Robot.auto_Init() calls selected cmd 
+    // using its instance made here and schedules cmd it receives
+    double autoDriveInch = 42;
+    final Command simpleAuto = new GoToPosition(autoDriveInch);
+    final Command simplePlus = new GoToPosition(autoDriveInch + 24);
+    final SequentialCommandGroup autoSequence1 = new autoFwdRotBak();
 
-    //... when Auto_ Mode activated, Robot.auto_Init() calls selected cmd using its
-    // instance made here and schedules cmd it receives
-    
-    final Command _simpleAuto = new GoToPosition(autoDriveInch);
-    final Command _simplePlus = new GoToPosition(autoDriveInch + 24);
-    final SequentialCommandGroup _autoSequence1 = new autoFwdRotBak();
+    autonChooser = new SendableChooser<>();
+    autonChooser.setDefaultOption("simpleAuto", simpleAuto);
+    autonChooser.addOption("goFarther", simplePlus);
+    autonChooser.addOption("fwd-Rot180-bak", autoSequence1);
 
-    _autonChooser = new SendableChooser<>();
-    _autonChooser.setDefaultOption("simpleAuto", _simpleAuto);
-    _autonChooser.addOption("goFarther", _simplePlus);
-    _autonChooser.addOption("fwd-Rot180-bak", _autoSequence1);
-
-    // if SD not enabled, does this appear in LV-dash's chooser / DS? NO
-    // v. mannCode-19 how to add to LV dash chooser instead
-    SmartDashboard.putData("Auton Selector", _autonChooser);
+    // if SD not enabled, does this appear in LV-DS's chooser? NO
+    // v. tips doc how to add to LV dashbd chooser
+    SmartDashboard.putData("Auton Selector", autonChooser);
     // sending data to chooser may require
     // NetworkTableInstance.getDefault().setUpdateRate(0.02);
 
     System.out.println("robot initialized");
   } // end robotInit
 
-  /**
-   * robotPeriodic is called every robot packet, no matter the mode.
+  /* robotPeriodic is called every robot packet, no matter the mode.
    * Use for items like diagnostics that you want run during disabled,
    * autonomous, teleoperated, test, send info to DS etc.
-   * Sched. call REQUIRED
+   * Scheduler call REQUIRED
    * This runs after the mode specific periodic functions, but before
    * LiveWindow and SmartDashboard integrated updating,
    */
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); // yes, needed!
-    // 1072, et mann-19 gathers sensor data from subsyst, puts on dashbd
+    // 1072 gathers sensor data from subsyst, puts on dashbd
     // SmartDashboard.putData(Drivetrain.getInstance());
     // SmartDashboard.putData(Climber.getInstance());
     // SmartDashboard.putData(Intake.getInstance());
   } // end robotPeriodic
 
-  // autonomousInit is called at the start of autonomous
+  // autonomousInit is called when autonomous Enabled
   @Override
   public void autonomousInit() {
     // chooser instance created in roboInit
-    if (_autonChooser.getSelected() != null) {
-      _autonChooser.getSelected().schedule();
+    if (autonChooser.getSelected() != null) {
+      autonChooser.getSelected().schedule();
     }
 
     // for test can just go to position(inch)
-    // final Command _simpleAuto = new GoToPosition(targetDriveInch);
-    // _simpleAuto.schedule();
+    // final Command simpleAuto = new GoToPosition(targetDriveInch);
+    // simpleAuto.schedule();
   } // end autoInit
 
   // autonomousPeriodic is called (~50 hz) during autonomous.
-  // ?? if Periodics need explicit call to CS() in them or if
-  // this is redundant; does auto cmd run despite this being empty?
+  // may be empty if cmds methods do all that's required
   @Override
-  public void autonomousPeriodic() {
-    CommandScheduler.getInstance().run(); 
+  public void autonomousPeriodic() { 
   }
 
   // teleopInit is called at the start of operator control
@@ -150,13 +135,10 @@ public class Robot extends TimedRobot {
   // teleopPeriodic is called every (~20ms) during operator control
   @Override
   public void teleopPeriodic() {
-    // is this line redundant ?; would it run default cmd w/o this? Y
-   // CommandScheduler.getInstance().run();
-
+  // can be empty if default cmd execute() does what's needed
   }
 
-  /**
-   * disabledInit is called once each time the robot enters Disabled mode.
+  /* disabledInit is called once each time the robot enters Disabled mode.
    * You can use it to reset any subsystem information you want to clear when
    * the robot is disabled.
    */
@@ -174,4 +156,4 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
-}
+}  // end robot.j class

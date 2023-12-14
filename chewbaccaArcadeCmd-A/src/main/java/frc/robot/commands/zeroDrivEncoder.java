@@ -25,7 +25,7 @@ public class zeroDrivEncoder extends CommandBase {
   @Override
   public void initialize() {
     System.out.println("zeroing encoders");
-    Robot._myDrive.zeroEncoder(0);
+    Robot._myDrive.zeroEncoder();
   }
 
   // Called repeatedly when this Command is scheduled to run

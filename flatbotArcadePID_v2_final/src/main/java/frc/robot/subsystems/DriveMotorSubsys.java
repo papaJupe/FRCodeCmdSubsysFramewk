@@ -1,4 +1,4 @@
-/*----------------------------------------------------------
+/* flatbotArcadePID v2
 *  DriveMotorSubsys  edited from Asid1072 video 4
 *  -- Cmd/Subsy framewk, PID for position
 * all periodic in Robot.j, oper input in OI.j, constant in C.j                                                           
@@ -22,7 +22,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 
 // static import Const reduces code volume; but 
 // for sparsest code, few are used, most specified inline here
-import static frc.robot.Constant.*;
+// import static frc.robot.Constant.*;
 
 public class DriveMotorSubsys extends SubsystemBase {
   // CAN ID for flatbot
@@ -34,14 +34,15 @@ public class DriveMotorSubsys extends SubsystemBase {
 
    // unit conversion for flatbot, 1 wheel rot = 18.7in = 10700 tick
   // 4.5 ft = 54in = ~32000
-  // private static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
-  // private static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
-  private static final int _position_slot = 0; // used by PID init & GoToPos cmd
+   private static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
+  // public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
+  private static final int position_slot = 0; // used by PID init & GoToPos cmd
+  private static final int TIMEOUT = 20;
 
   // needed to instance motor as wpi_talonSRX to work as DD param
-  DifferentialDrive _diffDrive = new DifferentialDrive(leftMaster, rightMaster);
+  DifferentialDrive diffDrive = new DifferentialDrive(leftMaster, rightMaster);
 
-  // set here after tuning in PhoeTune; could shift to Constant.j but
+  // set here after tuning in PhoeTuner; could use from Constant.j but
   // only ever used for this subsystem, so this keeps code the simplest
   static final double kP_pos = 0.3;
   static final double kI_pos = 0.00015;
@@ -51,7 +52,7 @@ public class DriveMotorSubsys extends SubsystemBase {
 
   // CONSTRUCTOR
   public DriveMotorSubsys() {
-    controllerInit();  // not sure why cI() contents are not just put in constructor
+    controllerInit();  // not sure why cI() code not just put in constructor
    }
 
   void controllerInit() { // initialize motor controller settings
@@ -91,26 +92,25 @@ public class DriveMotorSubsys extends SubsystemBase {
     rightMaster.setSelectedSensorPosition(0, 0, 20);
     // armMotor.setSelectedSensorPosition(0, 0, 10);
 
-    // config for R & L masters, assume followers don't need.
+    // config for R & L masters, assume followers will follow
     // some redundant, same as defaults, here to adjust PRN
     // config min/max speeds, ramp, active kI zone for PID control
 
-    leftMaster.config_kP(_position_slot, kP_pos, TIMEOUT);
-    leftMaster.config_kI(_position_slot, kI_pos, TIMEOUT);
-    leftMaster.config_kD(_position_slot, kD_pos, TIMEOUT);
-    leftMaster.config_IntegralZone(_position_slot, kIzone, TIMEOUT);
-    leftMaster.configClosedloopRamp(0.3, 20);
+    leftMaster.config_kP(position_slot, kP_pos, TIMEOUT);
+    leftMaster.config_kI(position_slot, kI_pos, TIMEOUT);
+    leftMaster.config_kD(position_slot, kD_pos, TIMEOUT);
+    leftMaster.config_IntegralZone(position_slot, kIzone, TIMEOUT);
 
-    rightMaster.config_kP(_position_slot, kP_pos, TIMEOUT);
-    rightMaster.config_kI(_position_slot, kI_pos, TIMEOUT);
-    rightMaster.config_kD(_position_slot, kD_pos, TIMEOUT);
-    rightMaster.config_IntegralZone(_position_slot, kIzone, TIMEOUT);
-    rightMaster.configClosedloopRamp(0.3, 20);
+    rightMaster.config_kP(position_slot, kP_pos, TIMEOUT);
+    rightMaster.config_kI(position_slot, kI_pos, TIMEOUT);
+    rightMaster.config_kD(position_slot, kD_pos, TIMEOUT);
+    rightMaster.config_IntegralZone(position_slot, kIzone, TIMEOUT);
 
     // Config the peak and nominal (min) outputs, full 12V = 1.0
-    leftMaster.configNominalOutputForward(0, TIMEOUT);
+    // peak #'s small for practice purposes
+    leftMaster.configNominalOutputForward(0.5, TIMEOUT);
     leftMaster.configNominalOutputReverse(0, TIMEOUT);
-    leftMaster.configPeakOutputForward(0.2, TIMEOUT);
+    leftMaster.configPeakOutputForward(0.2, TIMEOUT)5;
     leftMaster.configPeakOutputReverse(-0.2, TIMEOUT);
 
     rightMaster.configNominalOutputForward(0, TIMEOUT);
@@ -123,45 +123,48 @@ public class DriveMotorSubsys extends SubsystemBase {
      * neutral within this range. 
      */
     // leftMaster.configAllowableClosedloopError(slot, dbl N, int ms.);
-    leftMaster.configAllowableClosedloopError(0, 10, 20);
-    rightMaster.configAllowableClosedloopError(0, 10, 20);
+    leftMaster.configAllowableClosedloopError
+              (0, 10, 20);
+    rightMaster.configAllowableClosedloopError
+              (0, 10, 20);
 
     // dampen abrupt starts in manual control
     rightMaster.configOpenloopRamp(0.4, 20);
     leftMaster.configOpenloopRamp(0.4, 20);
 
-    // overrides default of 0.02 I think ? put in OI?
+    // set in OI
     // drive.setDeadband(0.04);
   } // end controllerInit
 
   // both sides aim for same distance target via their own external encoder.
   // param received here in inches, so multiply by inch2tick factor for .set
   // called in init() of GoToPosition cmd, so don't zeroEnco here
-  public void goStraightPosition(int target) {
+  public void goStraightPosition(double target) {
     // tick per wheelRot / inch per wheelRot
-    int tickTarget = (int) (target * kDriveInch2Tick);
+    double tickTarget = target * kDriveInch2Tick;
     leftMaster.set(ControlMode.Position, tickTarget);
     rightMaster.set(ControlMode.Position, tickTarget);
   }
 
-  public void rotate180(int target) {
+  public void rotate180(double target) {
     // tick per wheelRot / inch per wheelRot; L fwd, R bak,
-    int tickTarget = (int) (target * kDriveInch2Tick);
+    double tickTarget = target * kDriveInch2Tick;
     leftMaster.set(ControlMode.Position, tickTarget);
     rightMaster.set(ControlMode.Position, -tickTarget);
   }
 
   // method called from zeroDrivEncod cmd & GTP's end()
-  public void zeroEncoder(int pos) { // [pos,indx,timeout]
-    leftMaster.setSelectedSensorPosition(pos, 0, TIMEOUT);
-    rightMaster.setSelectedSensorPosition(pos, 0, TIMEOUT);
+  public void zeroEncoder() { // [pos,indx,timeout]
+    leftMaster.setSelectedSensorPosition(0, 0, TIMEOUT);
+    rightMaster.setSelectedSensorPosition(0, 0, TIMEOUT);
   }
 
   // class' method for cmds to call on an instance of 'this' --
   // should have different name than super's method to avoid confusion
   public void arcaDriv(double throttle, double turn) {
     // method from diff drive class works on instance of it
-    _diffDrive.arcadeDrive(throttle, turn);
+    // need to invert turn polarity as aD method inverts again
+    diffDrive.arcadeDrive(throttle, -turn);
   }
 
 } // end DrivMotoSubs

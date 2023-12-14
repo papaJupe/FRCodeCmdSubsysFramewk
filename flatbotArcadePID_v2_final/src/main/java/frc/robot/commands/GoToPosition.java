@@ -1,4 +1,4 @@
-// flatBotArcadePID_V2   | cmd/subsys framewk |  GoToPosition cmd  AKA GTP
+// flatBotArcadePID_V2       GoToPosition cmd  AKA GTP
 
 package frc.robot.commands;
 
@@ -11,28 +11,28 @@ import static frc.robot.Constant.*;
 
 public class GoToPosition extends CommandBase {
   // value received/sent = inches to drive straight
-  private int _target;
+  private double target;
   // these value in tick
-  private int leftEnco = 0;
-  private int riteEnco = 0;
-  private int loopCt = 0;
+  private double leftEnco = 0;
+  private double riteEnco = 0;
+  private double loopCt = 0;
 
   // CONSTRUCTOR for cmd, called from OI by button _N_ press,
   // also by auto cmds.; recd param inch
-  public GoToPosition(int target) {
-    _target = target; // could overload to recv [subsys] or drive speed
-    addRequirements(Robot._motorSubsys);
+  public GoToPosition(double autoDriveInch) {
+    target = autoDriveInch; // could overload to recv [subsys] or drive speed
+    addRequirements(Robot.motorSubsys);
   }
 
   // Called just before this Cmd runs first time (each button press?);
   // data slot 0-3, pid loop 0-1
   @Override // need to zero encoder; PID slot likely already set
   public void initialize() {
-    // Robot._motorSubsys.leftMaster.selectProfileSlot(Robot._motorSubsys
+    // Robot.motorSubsys.leftMaster.selectProfileSlot(Robot.motorSubsys
     // ._position_slot, 0);
-    // Robot._motorSubsys.rightMaster.selectProfileSlot(Robot._motorSubsys
+    // Robot.motorSubsys.rightMaster.selectProfileSlot(Robot.motorSubsys
     // ._position_slot, 0);
-    Robot._motorSubsys.zeroEncoder(0);
+    Robot.motorSubsys.zeroEncoder();
     SmartDashboard.putString("GTPcmdFin?", "1stInit");
 
   }
@@ -41,7 +41,7 @@ public class GoToPosition extends CommandBase {
   // inch param sent to subsys
   @Override
   public void execute() {
-    Robot._motorSubsys.goStraightPosition(_target);
+    Robot.motorSubsys.goStraightPosition(target);
   }
 
   // ... returns true when this Command no longer needs to run execute();
@@ -49,18 +49,19 @@ public class GoToPosition extends CommandBase {
   @Override
   public boolean isFinished() { // must finish for sequence it's in to advance
     // check value to see if it's getting close to target
-    leftEnco = (int) Robot._motorSubsys.leftMaster.getSelectedSensorPosition();
-    riteEnco = (int) Robot._motorSubsys.rightMaster.getSelectedSensorPosition();
-    boolean _atTargetPos = Math.abs(leftEnco) + Math.abs(riteEnco) + 1 >= (2 * Math.abs(_target * kDriveInch2Tick));
+    leftEnco = Robot.motorSubsys.leftMaster.getSelectedSensorPosition();
+    riteEnco = Robot.motorSubsys.rightMaster.getSelectedSensorPosition();
+    boolean atTargetPos = Math.abs(leftEnco) + Math.abs(riteEnco) + 1 >= 
+                (2 * Math.abs(target * kDriveInch2Tick));
 
     if (loopCt++ >= 30) {
-      System.out.println("'encoTarg' is " + _target * kDriveInch2Tick);
+      System.out.println("'encoTarg' is " + target * kDriveInch2Tick);
       System.out.println("leftEnco = " + leftEnco);
       System.out.println("riteEnco = " + riteEnco);
       loopCt = 0;
     }
 
-    if (_atTargetPos) { // display on SD for debugging purpose
+    if (atTargetPos) { // display on SD for debugging purpose
       SmartDashboard.putString("GTPcmdFin?", "true");
       return true;
     } else {

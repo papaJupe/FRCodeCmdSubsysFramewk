@@ -1,6 +1,6 @@
-// chewbaccArcadeCmd-A        Robot.j
+// chewbaccArcadeCmd-A                           Robot.j
 
-// adapting flat version using no RC to partial Subsy/Cmd to run Sequ. auto;
+// adapting flat version (no RC used) to partial Subsy/Cmd for autoSequ;
 // main instances in Robot.j, user interface in OI, few value in Constant
 // untested in hardware as of 230608
 package frc.robot;
@@ -19,12 +19,7 @@ import frc.robot.subsystems.DriveSubsys;
 import static frc.robot.subsystems.DriveSubsys.*; 
 import static frc.robot.Constant.*;
 
-/**
- * The VM is configured to automatically run this class, call the functions of
- * each mode, as described in the TimedRobot documentation. If you change name
- * of this class or the package after creating this project, you must also
- * update the build.gradle file in the project.
- */
+
 public class Robot extends TimedRobot {
 
   public static DriveSubsys _myDrive = new DriveSubsys();

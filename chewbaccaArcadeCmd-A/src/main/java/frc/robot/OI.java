@@ -56,6 +56,6 @@ public OI() {
   }
 
   public double getLeftX() {
-    return _driverStick.getRawAxis(0);
+    return _driverStick.getRawAxis(4);
   }
 }  // end OI class
