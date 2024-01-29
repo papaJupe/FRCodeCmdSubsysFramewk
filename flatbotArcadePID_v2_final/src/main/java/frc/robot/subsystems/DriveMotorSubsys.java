@@ -1,5 +1,6 @@
 /* flatbotArcadePID v2
-*  DriveMotorSubsys  edited from Asid1072 video 4
+
+*  DriveMotorSubsys edited from Asid1072 video 4
 *  -- Cmd/Subsy framewk, PID for position
 * all periodic in Robot.j, oper input in OI.j, constant in C.j                                                           
 --------------------------------------------------------------*/
@@ -36,13 +37,14 @@ public class DriveMotorSubsys extends SubsystemBase {
   // 4.5 ft = 54in = ~32000
    private static final double kDriveInch2Tick = 10700 / (6 * Math.PI);
   // public static final double kDriveTick2Inch = (6 * Math.PI) / 10700;
-  private static final int position_slot = 0; // used by PID init & GoToPos cmd
+// used by PID init & GoToPos cmd
+  private static final int position_slot = 0; 
   private static final int TIMEOUT = 20;
 
   // needed to instance motor as wpi_talonSRX to work as DD param
   DifferentialDrive diffDrive = new DifferentialDrive(leftMaster, rightMaster);
 
-  // set here after tuning in PhoeTuner; could use from Constant.j but
+  // set here after tuning in PhoeTuner; could use from Constant.j, but
   // only ever used for this subsystem, so this keeps code the simplest
   static final double kP_pos = 0.3;
   static final double kI_pos = 0.00015;
@@ -52,7 +54,7 @@ public class DriveMotorSubsys extends SubsystemBase {
 
   // CONSTRUCTOR
   public DriveMotorSubsys() {
-    controllerInit();  // not sure why cI() code not just put in constructor
+    controllerInit(); // ?? why cI() code not put in constructor
    }
 
   void controllerInit() { // initialize motor controller settings
@@ -67,7 +69,9 @@ public class DriveMotorSubsys extends SubsystemBase {
     leftSlave.setNeutralMode(NeutralMode.Brake);
     rightMaster.setNeutralMode(NeutralMode.Brake);
     rightSlave.setNeutralMode(NeutralMode.Brake);
-
+ 
+ // all motors need enableCurrentLimit and ConfigContinuousCurrentLimit()
+ // and ConfigPeakCurrentLimit(0) at //https://api.ctr-electronics.com/phoenix/release/java/com/ctre/phoenix/motorcontrol/can/TalonSRX.html#configContinuousCurrentLimit(int)
     // slave should follow
     leftSlave.follow(leftMaster);
     rightSlave.follow(rightMaster);
@@ -108,19 +112,19 @@ public class DriveMotorSubsys extends SubsystemBase {
 
     // Config the peak and nominal (min) outputs, full 12V = 1.0
     // peak #'s small for practice purposes
-    leftMaster.configNominalOutputForward(0.5, TIMEOUT);
+    leftMaster.configNominalOutputForward(0, TIMEOUT);
     leftMaster.configNominalOutputReverse(0, TIMEOUT);
-    leftMaster.configPeakOutputForward(0.2, TIMEOUT)5;
-    leftMaster.configPeakOutputReverse(-0.2, TIMEOUT);
+    leftMaster.configPeakOutputForward(0.5, TIMEOUT);
+    leftMaster.configPeakOutputReverse(-0.5, TIMEOUT);
 
     rightMaster.configNominalOutputForward(0, TIMEOUT);
     rightMaster.configNominalOutputReverse(0, TIMEOUT);
-    rightMaster.configPeakOutputForward(0.2, TIMEOUT);
-    rightMaster.configPeakOutputReverse(-0.2, TIMEOUT);
+    rightMaster.configPeakOutputForward(0.5, TIMEOUT);
+    rightMaster.configPeakOutputReverse(-0.5, TIMEOUT);
 
     /**
-     * Config the allowable closed-loop error, Closed-Loop output will be
-     * neutral within this range. 
+     * Config the allowable closed-loop error, Closed-Loop output will
+     *  be neutral within this range. 
      */
     // leftMaster.configAllowableClosedloopError(slot, dbl N, int ms.);
     leftMaster.configAllowableClosedloopError
@@ -159,11 +163,12 @@ public class DriveMotorSubsys extends SubsystemBase {
     rightMaster.setSelectedSensorPosition(0, 0, TIMEOUT);
   }
 
-  // class' method for cmds to call on an instance of 'this' --
-  // should have different name than super's method to avoid confusion
+  // class' method for cmds to call on an instance of it
+  // should have different name than super's method 
   public void arcaDriv(double throttle, double turn) {
-    // method from diff drive class works on instance of it
+    // method from diff drive class works on instance of it;
     // need to invert turn polarity as aD method inverts again
+    // -- this makes Rt push of Rt paddle turn CW
     diffDrive.arcadeDrive(throttle, -turn);
   }
 

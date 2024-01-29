@@ -40,7 +40,7 @@ public class OI {
     // JoystickButton(stick, 6), button7 = new JoystickButton(stick, 7),
     // button8 = new JoystickButton(stick, 8);
 
-    //button1.onTrue(new zeroDrivEncoder()); <-- works but simpler to
+    //button1.onTrue(new zeroDrivEncoder()); <-- works but simpler to:
     button1.onTrue(new InstantCommand(() -> Robot.motorSubsys.zeroEncoder()));
     button2.onTrue(new GoToPosition(24));
     button3.onTrue(new GoToPosition((-24)));
@@ -51,8 +51,8 @@ public class OI {
   } // end constructor
 
   // public static OI getInstance(){
-  // if(oi == null)  // code can use gI() method instead of named instance
-  // oi = new OI(); // not clear why or how calling hidden instance worked
+  // if(oi == null)  // can use getInst() method instead of making
+  // oi = new OI(); // named instance; not clear why that's useful
   // return oi;
 
   // applies deadzone (v.s.) to a joystick input from -1 to 1

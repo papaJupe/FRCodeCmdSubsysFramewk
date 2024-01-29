@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
     // only works here, tried in subsyst et. al. <-- fail on deploy
     motorSubsys.setDefaultCommand(new DriveWithPercent());
 
-     oi = new OI();  // operator interface, user controls
+     oi = new OI();  // operator interface = user controls
 
  
     // also others in RC constructor shift here
@@ -92,23 +92,26 @@ public class Robot extends TimedRobot {
     System.out.println("robot initialized");
   } // end robotInit
 
-  /* robotPeriodic is called every robot packet, no matter the mode.
-   * Use for items like diagnostics that you want run during disabled,
-   * autonomous, teleoperated, test, send info to DS etc.
-   * Scheduler call REQUIRED
+  /* robotPeriodic is called every robot packet, in all mode.
+   * Use for data display / diagnostics to run during disabled,
+   * autonomous, teleoperated, test -- send info to DS etc.
+   * Scheduler call REQUIRED for any periodic to run
    * This runs after the mode specific periodic functions, but before
-   * LiveWindow and SmartDashboard integrated updating,
+   * LiveWindow and SmartDashboard integrated updating
    */
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); // yes, needed!
-    // 1072 gathers sensor data from subsyst, puts on dashbd
+    SmartDashboard.putNumber("leftEncode", GoToPosition.leftEnco);
+    SmartDashboard.putNumber("rightEncod", GoToPosition.riteEnco);
+
+    // 1072 gathers sensor data ?? from subsyst, view on dashbd
     // SmartDashboard.putData(Drivetrain.getInstance());
     // SmartDashboard.putData(Climber.getInstance());
     // SmartDashboard.putData(Intake.getInstance());
   } // end robotPeriodic
 
-  // autonomousInit is called when autonomous Enabled
+  // autonomousInit is called when autonomous first Enabled
   @Override
   public void autonomousInit() {
     // chooser instance created in roboInit

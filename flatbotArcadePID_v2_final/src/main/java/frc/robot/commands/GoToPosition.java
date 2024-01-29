@@ -13,8 +13,8 @@ public class GoToPosition extends CommandBase {
   // value received/sent = inches to drive straight
   private double target;
   // these value in tick
-  private double leftEnco = 0;
-  private double riteEnco = 0;
+  public static double leftEnco = 0;
+  public static double riteEnco = 0;
   private double loopCt = 0;
 
   // CONSTRUCTOR for cmd, called from OI by button _N_ press,

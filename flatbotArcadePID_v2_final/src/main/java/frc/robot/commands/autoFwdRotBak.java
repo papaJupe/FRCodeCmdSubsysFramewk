@@ -12,10 +12,10 @@ public class autoFwdRotBak extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new GoToPosition(Constant.autoDriveInch)
-            .andThen(new WaitCommand(5.0))
+            .andThen(new WaitCommand(4.0))
             .andThen(new RotateInPlace(24))
-            .andThen(new WaitCommand(5.0))
-            .andThen(new GoToPosition(Constant.autoDriveInch - 12)));
+            .andThen(new WaitCommand(4.0))
+            .andThen(new GoToPosition(Constant.autoDriveInch)));
 
     // addCommands(new GoToPosition(Constant.autoDriveInch), new WaitCommand(3.0),
     // new RotateInPlace(14), new WaitCommand(3.0),
