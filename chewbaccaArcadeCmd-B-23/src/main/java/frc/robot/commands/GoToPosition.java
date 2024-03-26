@@ -49,8 +49,8 @@ public class GoToPosition extends CommandBase {
   @Override
   public boolean isFinished() { // must 'finish' for auto sequence it's in
   // to advance
-    double leftEnco = Robot.myDrive._leftEncoder.getPosition();
-    double riteEnco = Robot.myDrive._rightEncoder.getPosition();
+    double leftEnco = Robot.myDrive.leftEncoder.getPosition();
+    double riteEnco = Robot.myDrive.rightEncoder.getPosition();
     
     boolean atTargetPos = Math.abs(leftEnco) + Math.abs(riteEnco) + 50 >= 
            (2 * Math.abs(target));

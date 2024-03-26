@@ -97,13 +97,13 @@ public class DriveSubsys extends SubsystemBase {
     rightPIDControl = rightMaster.getPIDController();
 
     // PID coefficients untuned for drive; edit here
-    kP = 0.1; 
-    kI = 1e-4;
-    kD = 1; 
+    kP = 0.01; 
+    kI = 0;  //1e-4;
+    kD = 0; 
     kIz = 0; 
     kFF = 0; 
-    kMaxOutput = 0.5; 
-    kMinOutput = -0.5;
+    kMaxOutput = 0.35; 
+    kMinOutput = -0.35;
 
     // set PID coefficients
     leftPIDControl.setP(kP);

@@ -25,7 +25,7 @@ public class Robot extends TimedRobot {
   public static OI operatorInterface; // joystk, button binding...
   private Command autoCommand;
 
-  private static final double autoDriveInch = 24;
+  private static final double autoDriveInch = 48;
 
   // declare auto chooser for user to select an auto cmd
   private SendableChooser<Command> autonChooser;
@@ -140,7 +140,5 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
   }
 
-} // end robot.j class
-
-=====================================================
+}     // end robot.j class
 

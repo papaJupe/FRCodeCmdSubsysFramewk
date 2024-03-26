@@ -46,8 +46,8 @@ public class RotateInPlace extends CommandBase {
   @Override
   public boolean isFinished() {
     // must finish for cmd sequence it's in to advance, param inch
-    leftEnco = Robot.myDrive._leftEncoder.getPosition();
-    riteEnco = Robot.myDrive._rightEncoder.getPosition();
+    leftEnco = Robot.myDrive.leftEncoder.getPosition();
+    riteEnco = Robot.myDrive.rightEncoder.getPosition();
     boolean _atTargetPos = Math.abs(leftEnco) + Math.abs(riteEnco) + 1 >= 
              (2 * Math.abs(halfCirc));
 
