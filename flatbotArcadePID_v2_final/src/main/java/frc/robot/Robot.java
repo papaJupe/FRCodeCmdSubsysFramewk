@@ -1,8 +1,8 @@
 // flatbotArcadePID_v2_AM_final     Robot.j
-
+//  edit in VSCode '23, run RoboRIO image '23
 // edited from Asid_1072 video 4 -- Cmd/Subsy framewk, PID for position
 // all periodic in Robot.j, oper input in OI, Const for flatbot, gamepd
-// as did in 1072-22, eliminated RC; purpose here -- demo that framework
+// as did in 1072-22, eliminated RC; purpose here -- demo Cmd framework
 // on flatbot: arcade drive, simple auto w/ PID, chooser using smtDashbd
 
 // all OK [check joystick for axis 1 = throttle, 0/4 = turn, button 
@@ -15,7 +15,8 @@
 /* OI codes these button for manual straight drive to pre-set positions
 button1.onTrue(new zeroDrivEncoder());
 button3....(new GoToPosition(-24));
-button2....(new GoToPosition(24));*/
+button2....(new GoToPosition(24));
+*/
 
 package frc.robot;
 
@@ -53,7 +54,7 @@ public class Robot extends TimedRobot {
   // declare auto chooser, auto option in roboInit; sched choice in autoInit
   private SendableChooser<Command> autonChooser;
 
-  /* robotInit runs when the robot is first started up and should be
+  /* robotInit runs when the robot is first started up and is
    * used for initialization, instance basic subsys needed by cmd, configs
    * things done in RobotContainer before
    */
@@ -62,17 +63,17 @@ public class Robot extends TimedRobot {
 
     System.out.println("start robotInit");
 
-    // default commands are commands that are always running;
+    // default commands are commands that are always running; setDefault
     // only works here, tried in subsyst et. al. <-- fail on deploy
     motorSubsys.setDefaultCommand(new DriveWithPercent());
 
      oi = new OI();  // operator interface = user controls
 
  
-    // also others in RC constructor shift here
+    // all needed things usually in RC constructor shift here
 
     //... when Auto_ Mode enabled, Robot.auto_Init() calls selected cmd 
-    // using its instance made here and schedules cmd it receives
+    // using instances made here and schedules cmd it gets from Chooser
     double autoDriveInch = 42;
     final Command simpleAuto = new GoToPosition(autoDriveInch);
     final Command simplePlus = new GoToPosition(autoDriveInch + 24);
@@ -83,7 +84,7 @@ public class Robot extends TimedRobot {
     autonChooser.addOption("goFarther", simplePlus);
     autonChooser.addOption("fwd-Rot180-bak", autoSequence1);
 
-    // if SD not enabled, does this appear in LV-DS's chooser? NO
+    // if SmtDsh not enabled, does this appear in LV-DS's chooser? NO
     // v. tips doc how to add to LV dashbd chooser
     SmartDashboard.putData("Auton Selector", autonChooser);
     // sending data to chooser may require

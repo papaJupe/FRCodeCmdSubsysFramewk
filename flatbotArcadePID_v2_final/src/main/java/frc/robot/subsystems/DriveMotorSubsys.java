@@ -65,14 +65,18 @@ public class DriveMotorSubsys extends SubsystemBase {
     rightSlave.configFactoryDefault();
 
     // set the behavior when resting
-    leftMaster.setNeutralMode(NeutralMode.Brake);
-    leftSlave.setNeutralMode(NeutralMode.Brake);
-    rightMaster.setNeutralMode(NeutralMode.Brake);
-    rightSlave.setNeutralMode(NeutralMode.Brake);
+    leftMaster.setNeutralMode(NeutralMode.Coast);
+    leftSlave.setNeutralMode(NeutralMode.Coast);
+    rightMaster.setNeutralMode(NeutralMode.Coast);
+    rightSlave.setNeutralMode(NeutralMode.Coast);
  
- // all motors need enableCurrentLimit and ConfigContinuousCurrentLimit()
- // and ConfigPeakCurrentLimit(0) at //https://api.ctr-electronics.com/phoenix/release/java/com/ctre/phoenix/motorcontrol/can/TalonSRX.html#configContinuousCurrentLimit(int)
-    // slave should follow
+ /* all motors need enableCurrentLimit and ConfigContinuousCurrentLimit()
+ // and ConfigPeakCurrentLimit(0) at 
+ //https://api.ctr-electronics.com/phoenix/release/java/com/ctre/phoenix/
+ // motorcontrol/can/TalonSRX.html#configContinuousCurrentLimit(int)
+    */ 
+
+ // slave should follow
     leftSlave.follow(leftMaster);
     rightSlave.follow(rightMaster);
 
@@ -167,9 +171,9 @@ public class DriveMotorSubsys extends SubsystemBase {
   // should have different name than super's method 
   public void arcaDriv(double throttle, double turn) {
     // method from diff drive class works on instance of it;
-    // need to invert turn polarity as aD method inverts again
+    // no?[need to invert turn polarity as aD method inverts again]
     // -- this makes Rt push of Rt paddle turn CW
-    diffDrive.arcadeDrive(throttle, -turn);
+    diffDrive.arcadeDrive(throttle, turn);
   }
 
 } // end DrivMotoSubs
