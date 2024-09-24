@@ -1,20 +1,35 @@
-// armProto-A-cmd               Robot.j  cmd/subsys limited format
-/* sourceType: example for testing arm prototype, learning about coding PID position control
-* of a single motor controlled arm with various motor controller hardware and feedback encoders
+// armProto-A-cmd               Robot.j  cmd/subsys basic format
 
-* sourceStatus: functional now for positioning single motor rotation to various
-* angles with various button press and continuous position control by joystick while holding
-* other button. 
+/* sourceType: example for testing arm prototype, learning coding PID 
+* position control of a single motor-controlled arm with various motor 
+* controller hardware and feedback encoders
+
+* sourceStatus: functional now for positioning motor rotation to various
+* angles with various button press and continuous position control with 4
+* other joystick button. 
  
-* useContext: one brushed/brushless motor, (initially) PWM motor controller, remote REV absolute
-* position encoder wired to RIO, standard FRC control envir. RIO, Driver Station et.al. Later vers.
-* to use CAN bus wiring, smart SparkMax REV controller, wired to remote encoder mounted to arm
-* shaft
+* useContext: one brushed/brushless motor, (initially) PWM motor controller,
+* remote REV absolute position encoder wired to RIO, standard FRC control envir.:
+* RIO, Driver Station et.al. Later vers.to use CAN bus wiring, smart SparkMax 
+* controller, direct wired to thru-bore encoder mounted to arm shaft
+*/
+
+/* after deploying, enable teleOp, use L or R POV button to move arm to full
+ reverse position, click L bumper button to zero encoder there, then manually
+ control angle with POV's, or go to preset angles by holding buttons A,B,X,Y
+*/
+ 
+/* learning exercise for students: A. figure out what these lambda phrases 
+* are doing [(Trigger(method::reference), InstantCommand())]; and rewrite in 
+* clearer normal code -- i.e. classes and methods not needing lambda syntax.
+* B. instead of space consuming new PIDCommand for each trigger action, make 
+* one Command class that receives the angle param to turn to from buttons.
+* C. make SmtDash interactive so you can tune PID param from there vs.
+* redeploy when tuning k_ var's  -- add code to rP that reads present field
+* value and changes the kP, kI,.. vars to SmtDash value if it's changed.
 */
 
 package frc.robot;
-
-import static frc.robot.subsystems.ArmSubsys.*;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -26,7 +41,9 @@ import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import frc.robot.subsystems.ArmSubsys;
+import static frc.robot.subsystems.ArmSubsys.*;
 
 /**
  * The VM is configured to automatically run this class, and call the
@@ -35,30 +52,30 @@ import frc.robot.subsystems.ArmSubsys;
  */
 public class Robot extends TimedRobot {
 
-  // instance joystick --assumes xbox-like pad plugged into port 0
+  // instance joystick --assumes xbox-like gamepad plugged into port 0
   final XboxController myStick = new XboxController(0);
 
   final ArmSubsys myArmProto = new ArmSubsys();
 
-  // button to reset encoder, set arm angle
+  // button to reset encoder, set various arm angle
   Trigger leftBump;
-  Trigger buttonA;
+   Trigger buttonA;
   Trigger buttonB;
   Trigger buttonX;
   Trigger buttonY;
 
-  int angleGoal;
+  int angleGoal = 0;
 
   @Override
   public void robotInit() {
     // declares, instances, configs this robot's specific components;
     // their functionality (methods) in subsys (when they exist).
-    // here vs. RobotContainer() in more complex program
+    // these things done in RobotContainer() in more complex program
 
-    // configuring button binding -- here rI vs. rC for simplicity
+    // configuring button binding -- here, rI vs. rC for simplicity
     // define button triggers, used in rP and tP
 
-    // will reset encoder to output distance of 0 at current position
+    // to reset encoder to show distance of 0 at current position
     leftBump = new Trigger(myStick::getLeftBumperPressed);
 
     buttonA = new Trigger(myStick::getAButton);
@@ -69,15 +86,66 @@ public class Robot extends TimedRobot {
     Trigger armRevrs = new POVButton(myStick, 270); // left POV
     Trigger armForwd = new POVButton(myStick, 90); // rt POV
 
-    // oddly, trigger work here (rI) to move arm, but only when Enabled
+    // trigger work here (rI) to move arm, but only when Enabled
     armForwd.onTrue(new InstantCommand(() -> myArmProto.armMotorSpark.set(0.5)));
     armForwd.onFalse(new InstantCommand(() -> myArmProto.armMotorSpark.set(0.0)));
     // both started movement onTrue, didn't stop until .onFalse added,
     armRevrs.onTrue(new InstantCommand(() -> myArmProto.armMotorSpark.set(-0.4)));
     armRevrs.onFalse(new InstantCommand(() -> myArmProto.armMotorSpark.set(0.0)));
 
-    // works here only when Enabled; method of encoder superclass
+    // method of encoder superclass; works here only when Enabled;
     leftBump.onTrue(new InstantCommand(() -> myArmProto.absolArmEncod.reset()));
+
+    // press + hold returns arm to home (full reverse) angle, slowly
+    buttonA.onTrue(new PrintCommand("buttonA press"))
+        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
+            // Close the loop by reading present angle
+            myArmProto::getAngle,
+            // Setpoint is 0 for full reverse, allow for overshoot
+            setpointA, // how to .setTol for this inline PIDcontrol?()
+            // Pipe output to arm subsys method
+            output -> myArmProto.armMotorSpark.set(output * 0.05),
+            // Require the subsys instance
+            myArmProto))
+        .onFalse(new InstantCommand(() -> myArmProto.armMotorSpark.set(0.0)));
+    // onFalse cmd needed to stop zombie PIDcmd from eating all RIO memory!
+
+    buttonB.onTrue(new PrintCommand("buttonB press"))
+        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
+            // Close the loop by reading present angle
+            myArmProto::getAngle,
+            // Setpoint = class var from subsys
+            setpointB, // how to .setTol for this PIDcontrol?
+            // Pipe output to arm subsys motor's method
+            output -> myArmProto.armMotorSpark.set(output * 0.1),
+            // Require the subsys
+            myArmProto))
+        .onFalse(new InstantCommand(() -> myArmProto.armMotorSpark.set(0.0)));
+
+    // go to 90° on buttonX press+hold
+    buttonX.onTrue(new PrintCommand("buttonX press"))
+        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
+            // Close the loop on present angle
+            myArmProto::getAngle,
+            // Setpoint 90
+            setpointX,
+            // Pipe output to armMotor method
+            output -> myArmProto.armMotorSpark.set(output * 0.15),
+            // Require the subsys
+            myArmProto))
+        .onFalse(new InstantCommand(() -> myArmProto.armMotorSpark.set(0.0)));
+
+    buttonY.onTrue(new PrintCommand("buttonY press"))
+        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
+            // Close the loop by reading present angle
+            myArmProto::getAngle,
+            // Setpoint 120
+            setpointY, // how to .setTol for this PIDcontrol?
+            // Pipe output to arm subsys motor's method
+            output -> myArmProto.armMotorSpark.set(output * 0.15),
+            // Require the subsys
+            myArmProto))
+        .onFalse(new InstantCommand(() -> myArmProto.armMotorSpark.set(0.0)));
 
     // display PID coefficients on SmartDashboard
     SmartDashboard.putNumber("P Gain", kP);
@@ -88,16 +156,17 @@ public class Robot extends TimedRobot {
     // SmartDashboard.putNumber("Max Output", kMaxOutput);
     // SmartDashboard.putNumber("Min Output", kMinOutput);
 
-    // init SD field for desired angle setpoint and present angle
+    // init SmtDsh field for desired angle setpoint and present angle
     SmartDashboard.putNumber("angleGoal", 0);
-    // to show present encoder value
+    // field shows present encoder value
     SmartDashboard.putNumber("armAngle deg.", 0);
-    // to put text on SD
+    // to put text on SmtDsh
     // SmartDashboard.putString("GTPcmd fin?", "???");
+
   } // end robotInit()
 
   // This function is called every robot packet, no matter the mode.
-  // Does things you want run during all modes, like diagnostics.
+  // Does things you want run in all modes, like diagnostics.
   // This runs after the mode specific periodic functions, but before
   // LiveWindow and SmartDashboard integrated updating.
   @Override
@@ -117,22 +186,23 @@ public class Robot extends TimedRobot {
     if (myStick.getYButtonPressed())
       angleGoal = 120;
 
+    CommandScheduler.getInstance().run();
+
     SmartDashboard.putNumber("angleGoal", angleGoal);
     // display current arm angle
     SmartDashboard.putNumber("armAngle deg.",
         myArmProto.getAngle());
     // class method will return Math.round(absolArmEncod.getDistance()
 
-    CommandScheduler.getInstance().run();
   } // end robotPeriodic
 
-  // autoInit runs the autonomous command set in {RobotContainer}
+  // autoInit runs the autonomous command set here or usually RC
   @Override
   public void autonomousInit() {
 
   } // end autoInit
 
-  /** This function is called periodically during autonomous. */
+  /** This function is called periodically during autonomous if needed */
   @Override
   public void autonomousPeriodic() {
   }
@@ -151,58 +221,13 @@ public class Robot extends TimedRobot {
   /* This function is called periodically when bot Enabled */
   @Override
   public void teleopPeriodic() {
-
-    // press + hold returns arm to home (reverse) angle, slowly
-    buttonA.onTrue(new PrintCommand("buttonA press"))
-        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
-            // Close the loop by reading present angle
-            myArmProto::getAngle,
-            // Setpoint is 0 for full reverse, allow for overshoot
-            setpointA, // how to .setTol for this PIDcontrol?
-            // Pipe output to arm subsys motor's method
-            output -> myArmProto.armMotorSpark.set(output * 0.1),
-            // Require the subsys
-            myArmProto));
-
-    buttonB.onTrue(new PrintCommand("buttonB press"))
-        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
-            // Close the loop by reading present angle
-            myArmProto::getAngle,
-            // Setpoint is 0 for full reverse, allow for overshoot
-            setpointB, // how to .setTol for this PIDcontrol?
-            // Pipe output to arm subsys motor's method
-            output -> myArmProto.armMotorSpark.set(output * 0.1),
-            // Require the subsys
-            myArmProto));
-
-    // go to 90° on buttonX press+hold
-    buttonX.onTrue(new PrintCommand("buttonX press"))
-        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
-            // Close the loop on present angle
-            myArmProto::getAngle,
-            // Setpoint 90
-            setpointX,
-            // Pipe output to armMotor method
-            output -> myArmProto.armMotorSpark.set(output * 0.15),
-            // Require the subsys
-            myArmProto));
-
-    buttonY.onTrue(new PrintCommand("buttonY press"))
-        .whileTrue(new PIDCommand(new PIDController(kP, kI, kD),
-            // Close the loop by reading present angle
-            myArmProto::getAngle,
-            // Setpoint 120
-            setpointY, // how to .setTol for this PIDcontrol?
-            // Pipe output to arm subsys motor's method
-            output -> myArmProto.armMotorSpark.set(output * 0.15),
-            // Require the subsys
-            myArmProto));
-
   } // end telePeri
 
   // function is called once each time robot enters Disabled mode.
+  // tried this to kill zombie PIDcmd in tP when disabling, but didn't work
   @Override
   public void disabledInit() {
+    // CommandScheduler.getInstance().cancelAll();
   }
 
   @Override
