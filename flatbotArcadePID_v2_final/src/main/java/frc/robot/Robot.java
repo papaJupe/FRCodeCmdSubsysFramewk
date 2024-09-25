@@ -1,5 +1,11 @@
 // flatbotArcadePID_v2_AM_final     Robot.j
-//  edit in VSCode '23, run RoboRIO image '23
+//  edit w/ VSCode '23
+
+/* sourceType: full project, 2019 CA drive kit flatbot, early cmd/subsys framework
+* sourceStatus: works on '23 soft/hardware, tested, import/edit to use '24, todo: import to '24 envir., test accuracy of encoder for Auto distance
+* useContext:  '23 code/run envir., SIM motor x4, CTRE Talon SRX control, drive practice, slave motor x2 overheat spr '24, ? damage
+*/
+
 // edited from Asid_1072 video 4 -- Cmd/Subsy framewk, PID for position
 // all periodic in Robot.j, oper input in OI, Const for flatbot, gamepd
 // as did in 1072-22, eliminated RC; purpose here -- demo Cmd framework

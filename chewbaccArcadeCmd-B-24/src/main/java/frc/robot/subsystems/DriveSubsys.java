@@ -140,7 +140,7 @@ public class DriveSubsys extends SubsystemBase {
    * com.revrobotics.CANSparkMax.ControlType.kVoltage
    * example: m_pidControl.setReference(rotations,
    * CANSparkMax.ControlType.kPosition);
-   */
+ */
 
   // SmartDashboard.putNumber("SetPoint", rotations);
   // SmartDashboard.putNumber("ProcessVariable", m_encoder.getPosition());
@@ -198,11 +198,11 @@ public class DriveSubsys extends SubsystemBase {
   public Command exampleMethodCommand() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem
-    //
-    // return runOnce( /* one-time action goes here */
+    // all test code failed VSC syntax rule, ??? how to run cmd from button
+    // return runOnce( /* one-time runnable action goes here */
     // // () -> {m_Subsystem.zeroEncoder();}, RCstub.m_Subsystem);
-    return runOnce(this::zeroEncoder); // or 'this' might need to be
-    // the drivetrain instance myDrive (also failed)
+   // return new runOnce(this::zeroEncoder); // or 'this' might need to be
+    // the drivetrain instance myDrive ( below also failed, needs 'new'?)
     // return runOnce(() -> { Robot.myDrive.zeroEncoder(); }, Robot.myDrive);
   }
 

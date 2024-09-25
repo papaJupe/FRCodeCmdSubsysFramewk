@@ -1,11 +1,17 @@
 // chewbaccArcadeCmd-B-24                      Robot.j
 
+/* sourceType: full project for chewbacca flatbot cmd/subsys early framewk
+* sourceStatus: working for teleOp drive, auto mode not tested need
+* PID tuning, code button activ. a cmd not working
+* useContext: '24 soft and hardware, CA drive bot, driver practice OK, CAN bus,
+*/
+
 // test program for flatterbot/aka chewbacca; uses cmd/subsys framewk
 // and class arrangement of 2019-20 season, putting robot specifics
 // back in Robot.j and OI.j instead of RC == simpler code for 
 // basic project. Constants kept close/inside classes where used.
-// test of runOnce w/ button to zeroEnco
-// need to test  PID param in REVhard
+// runOnce w/ button to zeroEncoder not working
+// need to test/set PID param in REV Hardware Client
 
 package frc.robot;
 
@@ -42,10 +48,10 @@ public class Robot extends TimedRobot {
     // NOT USED - m_robotContainer = new RobotContainer(); instead object
     // instances [drive, OI, autoCmds, chooser for auto] are setup here;
     // things RobotContainer would init, button bindings+, now in OI class;
-    // autonomous chooser on SmtDashbd et. al. now here
+    // autonomous chooser on SmtDashbd et. al. now here in rI
     System.out.println("start robotInit");
 
-    operatorInterface = new OI(); // joystick defin & button binding
+    operatorInterface = new OI(); //  instance joystick & button binding
 
     myDrive.setDefaultCommand(new DriveWithPercent());
     // default commands are commands that are always running -- mainly used
@@ -67,10 +73,10 @@ public class Robot extends TimedRobot {
     autonChooser.addOption("goFarther", simplePlus);
     autonChooser.addOption("fwd-Rot180-bak", autoSequence1);
 
-    // if SD not enabled, does this appear in LV-dash's chooser / DS? NO
+    // if SmtDash not enabled, does this appear in LV-dash's chooser / DS? NO
     // v. tip doc how to add to LV dashbd chooser instead
     SmartDashboard.putData("Auton Selector", autonChooser);
-    // sending data to chooser may require
+    // sending data to chooser may require -- not observed to be needed
     // NetworkTableInstance.getDefault().setUpdateRate(0.02);
 
     System.out.println("robot initialized");
@@ -81,7 +87,7 @@ public class Robot extends TimedRobot {
    * This function is called every 20 ms, no matter the mode. Use for
    * things like diagnostics that you want run during disabled et.al.
    *
-   * This runs after the mode specific periodics, but before LiveWindow
+   * rP runs after the mode specific periodics, but before LiveWindow
    * and SmartDashboard integrated updating.
    */
   @Override
@@ -89,19 +95,22 @@ public class Robot extends TimedRobot {
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
     // finished or interrupted commands, and running subsystem periodic()
-    // methods -- must be called from this periodic block in order for
-    // anything in the Command-based framework to work properly.
-    CommandScheduler.getInstance().run();
-
-    if (OI.controller.getRawButton(1))
-       myDrive.exampleMethodCommand();
+    // methods -- CS must be called from this periodic block in order for
+    // anything in the Command-Subsys framework to work.
+   
+   // purpose is to zero R & L motor encoder w/ button in all mode
+    if (operatorInterface.controller.getRawButton(1))  // A on gamepad
+      // myDrive.exampleMethodCommand(); <-- method returns inline cmd
+    // so likely needs different structure to execute, maybe just 
+    myDrive.zeroEncoder(); 
     
-  }
+     CommandScheduler.getInstance().run();    
+  }  // end class
 
   @Override
   public void autonomousInit() {
     autoCommand = autonChooser.getSelected();
-    // schedule the autonomous command user has selected
+    // schedule the autonomous command user has selected, if any
     if (autoCommand != null) {
       autoCommand.schedule();
     }
